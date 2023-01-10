@@ -5,6 +5,7 @@
 #include <QLabel>
 
 #include "tictactoe.h"
+#include "mainwindow.h"
 
 //   col col col     diag
 //   -0- -1- -2- -7-
@@ -31,7 +32,6 @@ TicTacToe::TicTacToe(QWidget *parent, int cellSize, int fontSize, int firstCellO
     QSize qSize = QSize(cellSize,cellSize);
     QFont qFont = QFont("Arial", fontSize);
 
-    //lbStatus = new QLabel;
     btnCells = new QPushButton[9]; // cells-buttons
 
     QSignalMapper *signalMapper = new QSignalMapper;
@@ -56,7 +56,6 @@ TicTacToe::TicTacToe(QWidget *parent, int cellSize, int fontSize, int firstCellO
 }
 
 //----------------------------------------------------------------------------------------------------
-
 TicTacToe::~TicTacToe()
 {
     this->hide();
@@ -76,7 +75,7 @@ int TicTacToe::getGameStatus () const
 //----------------------------------------------------------------------------------------------------
 void TicTacToe::handleCellClick (int cell)
 {
-    cellInit(cell,-1);
+    cellInit(cell,-1); //comps turn
 
     boardAnalysis();
 
@@ -121,6 +120,7 @@ void TicTacToe::boardAnalysis ()
                 {
                     winLineNum=i;
                     gameStatus=WIN_HUMAN;
+                    MainWindow::boardsWin++;
                     return;
                 }
                }
@@ -131,6 +131,7 @@ void TicTacToe::boardAnalysis ()
                 {
                     winLineNum=i;
                     gameStatus=WIN_COMP;
+                    MainWindow::boardsLost++;
                     return;
                 }
 
@@ -145,8 +146,12 @@ void TicTacToe::boardAnalysis ()
             emptyCells.push_back(cellnum);
     }
 
- if (emptyCells.isEmpty()) gameStatus=GAME_DRAW;
-                      else gameStatus=NOT_DEFINED;
+ if (emptyCells.isEmpty())
+    {
+     gameStatus=GAME_DRAW;
+     MainWindow::boardsDraw++;
+    }
+    else gameStatus=NOT_DEFINED;
 
 }
 //----------------------------------------------------------------------------------------------------

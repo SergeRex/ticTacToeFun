@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 
 #include "tictactoe.h"
-#include "enternamedialog.h"
 
 #include <QGridLayout>
 #include <QString>
@@ -12,10 +11,16 @@
 
 int timerId;
 
+QString MainWindow::playerName="";
+int MainWindow::boardsWin=0;
+int MainWindow::boardsLost=0;
+int MainWindow::boardsDraw=0;
+int MainWindow::boardsQty;  //number of boards of the current game
+int MainWindow::inGameTime; //play time of the current game
+
 //-----------------------------------------------------------------------------------------------------
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
 
@@ -41,10 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->btnPause->setDisabled(true);
     ui->btnCloseResults->hide();
 
-    loadResults();
-    switchToBriefResults();
-
-    QPixmap pixmap("tttn1.png");
+    QPixmap pixmap("blackboard.png");
     ui->lblImage->setPixmap(pixmap);
 
     //ui->lblImage->show();
@@ -52,13 +54,66 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar->showMessage(tr("                                                           "
                                   "                                                           "
                                   "                                                           "
-                                  "                                Sergio Rex (c) 2022  v.1.0 "));
-}
+                                  "                                Sergio Rex (c) 2022  v.1.2 "));
 
+    // loading the records
+    if (openRecordsDB())
+    {
+      loadResultsFromDB();
+      saveRecordsToFile();
+    }
+    else
+    {
+        qDebug() << db.lastError().text();
+        loadResultsFromFile();
+        QMessageBox::information(this, "Load records data", "Can't open results from the server, local data from file is loaded");
+    }
+
+    switchToBriefResults();
+}
 //-----------------------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+//-----------------------------------------------------------------------------------------------------
+
+void MainWindow::timerEvent(QTimerEvent *e)
+{
+    Q_UNUSED(e);
+
+    int boardsLeft=-1;
+    int score=0;
+
+    QTime qtime = QTime::currentTime();
+
+    int ms = qtime.msecsSinceStartOfDay();
+    inGameTime=ms-startTime;
+    ui->lbTimer->setText(QString::number(inGameTime/1000));
+
+    boardsLeft=boardsQty-boardsWin-boardsLost-boardsDraw;
+
+    ui->lbBoardsLeft->setText(QString::number(boardsLeft));
+    ui->lbBoardsWin->setText(QString::number(boardsWin));
+    ui->lbBoardsDraw->setText(QString::number(boardsDraw));
+    ui->lbBoardsLost->setText(QString::number(boardsLost));
+
+    // if all boards completed than calc the score and show result
+    if(boardsLeft==0)
+    {
+        score=(boardsWin*2000+boardsDraw*1000-boardsLost*1000)/(inGameTime/1000);
+
+        QString msg={", \nyour score is : "};
+
+        QMessageBox::information(this, "The game is over", playerName+msg+QString::number(score));
+
+       // if((score>0)&&(boardsQty>=16)) // saving results if score is positive and boards qty is enought
+        {
+            addRecord(score);
+        }
+
+        breakGame();  // delete finished game
+    }
 }
 //-----------------------------------------------------------------------------------------------------
 void MainWindow::pauseGame()
@@ -120,10 +175,28 @@ void MainWindow::breakGame()
      ui->lbBoardsDraw->setText(QString::number(0));
      ui->lbBoardsLost->setText(QString::number(0));
 
+     boardsWin=0;
+     boardsLost=0;
+     boardsDraw=0;
 }
 //-----------------------------------------------------------------------------------------------------
 void MainWindow::startNewGame(int gameType)
 {
+
+    if (playerName=="")
+    {
+        QDialog *enterNameDlg = new QDialog;
+        QLineEdit *nameEdit = new QLineEdit("Unknown player", enterNameDlg);
+        QPushButton *pbOK = new QPushButton("OK", enterNameDlg);
+        QGridLayout *grid = new QGridLayout(enterNameDlg);
+        grid->addWidget(nameEdit, 0, 0);
+        grid->addWidget(pbOK, 0, 1);
+        setLayout(grid);
+        connect (pbOK, &QPushButton::clicked, enterNameDlg, &QDialog::close);
+        enterNameDlg->exec();
+        playerName=nameEdit->text();
+    }
+
 
     TicTacToe* newgame;
     int bdWide=146;  // size of board for 4x4 boards field
@@ -188,55 +261,6 @@ void MainWindow::startNewGame(int gameType)
      ui->lbTimer->show();
 
      timerId=startTimer(1000);
-
-}
-//-----------------------------------------------------------------------------------------------------
-void MainWindow::timerEvent(QTimerEvent *e)
-{
-    Q_UNUSED(e);
-
-    boardsWin=0;
-    boardsLost=0;
-    boardsDraw=0;
-
-    int boardsLeft=-1;
-    int score=0;
-
-    QTime qtime = QTime::currentTime();
-
-    int ms = qtime.msecsSinceStartOfDay();
-    inGameTime=ms-startTime;
-    ui->lbTimer->setText(QString::number(inGameTime/1000));
-
-    for(int i=0;i<boardsQty;i++)
-    {
-        int status=gameList[i]->getGameStatus();
-
-        if (status==WIN_HUMAN) boardsWin++;
-        if (status==WIN_COMP) boardsLost++;
-        if (status==GAME_DRAW) boardsDraw++;
-    }
-
-    boardsLeft=boardsQty-boardsWin-boardsLost-boardsDraw;
-
-    ui->lbBoardsLeft->setText(QString::number(boardsLeft));
-    ui->lbBoardsWin->setText(QString::number(boardsWin));
-    ui->lbBoardsDraw->setText(QString::number(boardsDraw));
-    ui->lbBoardsLost->setText(QString::number(boardsLost));
-
-    // if all boards completed than calc the score and show result
-    if(boardsLeft==0)
-    {
-        EnterNameDialog showResultDialog(nullptr, this);// = new EntNameDialog;
-        showResultDialog.setFixedSize(290,450);
-        showResultDialog.exec();
-        playerName=showResultDialog.getName();
-
-        score=(boardsWin*2000+boardsDraw*1000-boardsLost*1000)/(inGameTime/1000);
-
-        if((score>0)&&(boardsQty>=16)) addRecord(score);
-        breakGame();  // delete finished game
-    }
 }
 //-----------------------------------------------------------------------------------------------------
 void MainWindow::switchToFullResults()
@@ -253,7 +277,6 @@ void MainWindow::switchToFullResults()
     ui->btnStartChalenge->setDisabled(true);
     ui->btnStartFun->setDisabled(true);
 }
-
 //-----------------------------------------------------------------------------------------------------
 void MainWindow::switchToBriefResults()
 {
@@ -271,7 +294,7 @@ void MainWindow::switchToBriefResults()
 
 }
 //-----------------------------------------------------------------------------------------------------
-void MainWindow::loadResults()
+void MainWindow::loadResultsFromFile()
 {
     const int numColumns=8;
     const int columnsWidth[]={99,40,40,50,40,40,40,80};
@@ -303,8 +326,7 @@ void MainWindow::loadResults()
                                      new QTableWidgetItem(rowArr.at(col)));
     }
     in.flush();
-    inputFile.close();
-    // file closed
+    inputFile.close(); // file closed
 
     // sorting of table by score
     // ui->tableResult->setSortingEnabled(true);
@@ -317,23 +339,58 @@ void MainWindow::loadResults()
 //-----------------------------------------------------------------------------------------------------
 void MainWindow::addRecord(int score)
 {
-    // get current date
+
+    // get the current date
     QDate cDate=QDate::currentDate();
-    QString cDateStr=cDate.toString("dd/MM/yyyy");
+    QString cDateStr=cDate.toString("yyyy-MM-dd");
+    int inGameTimeSec=inGameTime/1000;
     // adding to result table
     ui->tableResult->insertRow(ui->tableResult->rowCount());
-    ui->tableResult->setItem(ui->tableResult->rowCount()-1,0,new QTableWidgetItem(playerName));                      //player's name
+    ui->tableResult->setItem(ui->tableResult->rowCount()-1,0,new QTableWidgetItem(playerName));                       //player's name
     ui->tableResult->setItem(ui->tableResult->rowCount()-1,1,new QTableWidgetItem(QString::number(score)));           //score
-    ui->tableResult->setItem(ui->tableResult->rowCount()-1,2,new QTableWidgetItem(QString::number(inGameTime/1000))); // game time
+    ui->tableResult->setItem(ui->tableResult->rowCount()-1,2,new QTableWidgetItem(QString::number(inGameTimeSec)));   // game time
     ui->tableResult->setItem(ui->tableResult->rowCount()-1,3,new QTableWidgetItem(QString::number(boardsQty)));       // total boards
     ui->tableResult->setItem(ui->tableResult->rowCount()-1,4,new QTableWidgetItem(QString::number(boardsWin)));
     ui->tableResult->setItem(ui->tableResult->rowCount()-1,5,new QTableWidgetItem(QString::number(boardsDraw)));
     ui->tableResult->setItem(ui->tableResult->rowCount()-1,6,new QTableWidgetItem(QString::number(boardsLost)));
     ui->tableResult->setItem(ui->tableResult->rowCount()-1,7,new QTableWidgetItem(cDateStr));                         // current date
+
+    // add to DB:
+
+    if(db.open())
+    {
+       QSqlQuery query(db);
+       if (query.prepare("INSERT INTO `TicTacToeChallengeResults` (`Player Name`, `Score`, `Time`, `Boards`, `Won`, `Draw`, `Lost`, `Date`)"
+                         "VALUES (:playerName, :score, :inGameTimeSec, :boardsQty, :boardsWin, :boardsDraw, :boardsLost, :cDate)"))
+    {
+       query.bindValue(":playerName", playerName);
+       query.bindValue(":score", score);
+       query.bindValue(":inGameTimeSec", inGameTimeSec);
+       query.bindValue(":boardsQty", boardsQty);
+       query.bindValue(":boardsWin", boardsWin);
+       query.bindValue(":boardsDraw", boardsDraw);
+       query.bindValue(":boardsLost", boardsLost);
+       query.bindValue(":cDate", cDate);
+
+       if(query.exec())
+       {
+
+           QMessageBox::information(this, "Saved", "Your result is saved successfully");
+
+       } else qDebug() << "Problem with exec. " << query.lastError().text();
+
+    } else qDebug() << "Problem with prepare. " << query.lastError().text();
+
+    } else
+        {
+        qDebug() << "DB is not opened. " << db.lastError().text();
+        QMessageBox::information(this, "Save records data", "Can't save results on the server, save to local file");
+        }
     // sorting by score
     ui->tableResult->setSortingEnabled(true);
     ui->tableResult->sortByColumn(1,Qt::DescendingOrder);
     ui->tableResult->setSortingEnabled(false);
+
     // save all records to file
     saveRecordsToFile();
 }
@@ -356,3 +413,53 @@ void MainWindow::saveRecordsToFile()
     outputFile.close();
 }
 //-----------------------------------------------------------------------------------------------------
+
+bool MainWindow::openRecordsDB()
+{
+    db = QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("91.239.234.10");
+    db.setDatabaseName("jetpromc_RecordsDB");
+    db.setUserName("jetpromc_admin");
+    db.setPassword("Admn_2023");
+
+    return db.open();
+}
+//-----------------------------------------------------------------------------------------------------
+void MainWindow::loadResultsFromDB()
+{
+    const int numColumns=8;
+    const int columnsWidth[]={99,40,40,50,40,40,40,80};
+
+    ui->tableResult->clear();
+    ui->tableResult->setColumnCount(numColumns);
+
+    // setting column names
+    ui->tableResult->setHorizontalHeaderLabels(QStringList()
+    << tr("Player's Name") << tr("Score") << tr("Time")<< tr("Boards")<< tr("Win")
+    << tr("Draw")<< tr("Lost")<< tr("Date"));
+
+    // setting column widthes
+    for (int col=0; col<numColumns;col++)
+        ui->tableResult->setColumnWidth(col, columnsWidth[col]);
+    QSqlQuery query(db);
+
+    if (query.exec("SELECT * FROM TicTacToeChallengeResults;"))
+    {
+            while (query.next())
+            {
+                QSqlRecord rec = query.record();
+                ui->tableResult->insertRow(ui->tableResult->rowCount()); // add new row
+                for (int col = 0; col < rec.count(); ++col)
+                {
+                    ui->tableResult->setItem(ui->tableResult->rowCount()-1,col,
+                                             new QTableWidgetItem(rec.value(col).toString()));
+                }
+            }
+      }
+
+    //sorting of table by score
+    ui->tableResult->setSortingEnabled(true);
+    ui->tableResult->sortByColumn(1,Qt::DescendingOrder);
+    ui->tableResult->setSortingEnabled(false);
+    ui->tableResult->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 6.4.0
+** Created by: Qt User Interface Compiler version 5.15.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,7 +10,7 @@
 #define UI_MAINWINDOW_H
 
 #include <QtCore/QVariant>
-#include <QtGui/QAction>
+#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHeaderView>
@@ -60,21 +60,21 @@ public:
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
-            MainWindow->setObjectName("MainWindow");
+            MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->resize(843, 739);
         MainWindow->setCursor(QCursor(Qt::ArrowCursor));
         btnLoadImage = new QAction(MainWindow);
-        btnLoadImage->setObjectName("btnLoadImage");
+        btnLoadImage->setObjectName(QString::fromUtf8("btnLoadImage"));
         centralwidget = new QWidget(MainWindow);
-        centralwidget->setObjectName("centralwidget");
+        centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         groupBox = new QGroupBox(centralwidget);
-        groupBox->setObjectName("groupBox");
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
         groupBox->setGeometry(QRect(10, 0, 141, 121));
         QFont font;
         font.setPointSize(9);
         groupBox->setFont(font);
         lbBoardsLeft = new QLabel(groupBox);
-        lbBoardsLeft->setObjectName("lbBoardsLeft");
+        lbBoardsLeft->setObjectName(QString::fromUtf8("lbBoardsLeft"));
         lbBoardsLeft->setGeometry(QRect(90, 30, 41, 20));
         QFont font1;
         font1.setPointSize(15);
@@ -82,11 +82,11 @@ public:
         lbBoardsLeft->setFont(font1);
         lbBoardsLeft->setAlignment(Qt::AlignCenter);
         label = new QLabel(groupBox);
-        label->setObjectName("label");
+        label->setObjectName(QString::fromUtf8("label"));
         label->setGeometry(QRect(10, 30, 81, 20));
         label->setAlignment(Qt::AlignCenter);
         label_3 = new QLabel(groupBox);
-        label_3->setObjectName("label_3");
+        label_3->setObjectName(QString::fromUtf8("label_3"));
         label_3->setGeometry(QRect(10, 50, 81, 20));
         QFont font2;
         font2.setPointSize(12);
@@ -95,33 +95,33 @@ public:
         label_3->setFont(font2);
         label_3->setAlignment(Qt::AlignCenter);
         lbBoardsWin = new QLabel(groupBox);
-        lbBoardsWin->setObjectName("lbBoardsWin");
+        lbBoardsWin->setObjectName(QString::fromUtf8("lbBoardsWin"));
         lbBoardsWin->setGeometry(QRect(90, 50, 41, 20));
         lbBoardsWin->setFont(font1);
         lbBoardsWin->setAlignment(Qt::AlignCenter);
         label_4 = new QLabel(groupBox);
-        label_4->setObjectName("label_4");
+        label_4->setObjectName(QString::fromUtf8("label_4"));
         label_4->setGeometry(QRect(0, 70, 91, 20));
         label_4->setAlignment(Qt::AlignCenter);
         lbBoardsDraw = new QLabel(groupBox);
-        lbBoardsDraw->setObjectName("lbBoardsDraw");
+        lbBoardsDraw->setObjectName(QString::fromUtf8("lbBoardsDraw"));
         lbBoardsDraw->setGeometry(QRect(90, 70, 41, 20));
         lbBoardsDraw->setFont(font1);
         lbBoardsDraw->setAlignment(Qt::AlignCenter);
         label_5 = new QLabel(groupBox);
-        label_5->setObjectName("label_5");
+        label_5->setObjectName(QString::fromUtf8("label_5"));
         label_5->setGeometry(QRect(0, 90, 91, 20));
         label_5->setAlignment(Qt::AlignCenter);
         lbBoardsLost = new QLabel(groupBox);
-        lbBoardsLost->setObjectName("lbBoardsLost");
+        lbBoardsLost->setObjectName(QString::fromUtf8("lbBoardsLost"));
         lbBoardsLost->setGeometry(QRect(90, 90, 41, 20));
         lbBoardsLost->setFont(font1);
         lbBoardsLost->setAlignment(Qt::AlignCenter);
         groupBox_2 = new QGroupBox(centralwidget);
-        groupBox_2->setObjectName("groupBox_2");
+        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
         groupBox_2->setGeometry(QRect(10, 120, 141, 71));
         lbTimer = new QLabel(groupBox_2);
-        lbTimer->setObjectName("lbTimer");
+        lbTimer->setObjectName(QString::fromUtf8("lbTimer"));
         lbTimer->setGeometry(QRect(8, 27, 81, 35));
         QFont font3;
         font3.setPointSize(19);
@@ -130,16 +130,16 @@ public:
         lbTimer->setFrameShadow(QFrame::Raised);
         lbTimer->setAlignment(Qt::AlignCenter);
         label_6 = new QLabel(groupBox_2);
-        label_6->setObjectName("label_6");
+        label_6->setObjectName(QString::fromUtf8("label_6"));
         label_6->setGeometry(QRect(100, 33, 31, 21));
         QFont font4;
         font4.setPointSize(11);
         label_6->setFont(font4);
         groupBox_3 = new QGroupBox(centralwidget);
-        groupBox_3->setObjectName("groupBox_3");
+        groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
         groupBox_3->setGeometry(QRect(10, 230, 141, 121));
         sbGamesQty = new QSpinBox(groupBox_3);
-        sbGamesQty->setObjectName("sbGamesQty");
+        sbGamesQty->setObjectName(QString::fromUtf8("sbGamesQty"));
         sbGamesQty->setGeometry(QRect(80, 30, 51, 31));
         QFont font5;
         font5.setPointSize(12);
@@ -150,26 +150,26 @@ public:
         sbGamesQty->setMinimum(2);
         sbGamesQty->setMaximum(121);
         btnStartFun = new QPushButton(groupBox_3);
-        btnStartFun->setObjectName("btnStartFun");
+        btnStartFun->setObjectName(QString::fromUtf8("btnStartFun"));
         btnStartFun->setGeometry(QRect(10, 70, 121, 41));
         label_2 = new QLabel(groupBox_3);
-        label_2->setObjectName("label_2");
+        label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setGeometry(QRect(10, 30, 71, 31));
         btnPause = new QPushButton(centralwidget);
-        btnPause->setObjectName("btnPause");
+        btnPause->setObjectName(QString::fromUtf8("btnPause"));
         btnPause->setGeometry(QRect(10, 200, 91, 31));
         btnPause->setCursor(QCursor(Qt::PointingHandCursor));
         groupBox_4 = new QGroupBox(centralwidget);
-        groupBox_4->setObjectName("groupBox_4");
+        groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
         groupBox_4->setGeometry(QRect(10, 350, 141, 80));
         btnStartChalenge = new QPushButton(groupBox_4);
-        btnStartChalenge->setObjectName("btnStartChalenge");
+        btnStartChalenge->setObjectName(QString::fromUtf8("btnStartChalenge"));
         btnStartChalenge->setGeometry(QRect(10, 30, 121, 41));
         btnBreak = new QPushButton(centralwidget);
-        btnBreak->setObjectName("btnBreak");
+        btnBreak->setObjectName(QString::fromUtf8("btnBreak"));
         btnBreak->setGeometry(QRect(110, 200, 41, 31));
         tableResult = new QTableWidget(centralwidget);
-        tableResult->setObjectName("tableResult");
+        tableResult->setObjectName(QString::fromUtf8("tableResult"));
         tableResult->setGeometry(QRect(10, 430, 141, 241));
         tableResult->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tableResult->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -186,19 +186,19 @@ public:
         tableResult->horizontalHeader()->setHighlightSections(true);
         tableResult->verticalHeader()->setVisible(false);
         tableResult->verticalHeader()->setCascadingSectionResizes(true);
-        tableResult->verticalHeader()->setDefaultSectionSize(20);
+        tableResult->verticalHeader()->setDefaultSectionSize(24);
         tableResult->verticalHeader()->setHighlightSections(true);
         btnResults = new QPushButton(centralwidget);
-        btnResults->setObjectName("btnResults");
+        btnResults->setObjectName(QString::fromUtf8("btnResults"));
         btnResults->setGeometry(QRect(20, 680, 121, 31));
         btnCloseResults = new QPushButton(centralwidget);
-        btnCloseResults->setObjectName("btnCloseResults");
+        btnCloseResults->setObjectName(QString::fromUtf8("btnCloseResults"));
         btnCloseResults->setGeometry(QRect(400, 640, 181, 24));
         lblImage = new QLabel(centralwidget);
-        lblImage->setObjectName("lblImage");
+        lblImage->setObjectName(QString::fromUtf8("lblImage"));
         lblImage->setGeometry(QRect(150, 0, 681, 711));
         lblImage->setFrameShape(QFrame::NoFrame);
-        lblImage->setPixmap(QPixmap(QString::fromUtf8("release/tttn1.png")));
+        lblImage->setPixmap(QPixmap(QString::fromUtf8("tttn1.png")));
         lblImage->setScaledContents(true);
         MainWindow->setCentralWidget(centralwidget);
         lblImage->raise();
@@ -212,11 +212,11 @@ public:
         btnResults->raise();
         btnCloseResults->raise();
         menubar = new QMenuBar(MainWindow);
-        menubar->setObjectName("menubar");
+        menubar->setObjectName(QString::fromUtf8("menubar"));
         menubar->setGeometry(QRect(0, 0, 843, 21));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
-        statusbar->setObjectName("statusbar");
+        statusbar->setObjectName(QString::fromUtf8("statusbar"));
         statusbar->setEnabled(false);
         MainWindow->setStatusBar(statusbar);
 

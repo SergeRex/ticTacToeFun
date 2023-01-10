@@ -5,6 +5,14 @@
 #include <QPushButton>
 #include <QTime>
 
+#include <QSqlDatabase>
+#include <QDebug>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QSqlRecord>
+
+
+
 #include "tictactoe.h"
 
 const int FUN_GAME = 1;
@@ -21,25 +29,40 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    QString playerName="";
-    int boardsWin=0;
-    int boardsLost=0;
-    int boardsDraw=0;
-    int boardsQty;  //number of boards of the current game
-    int inGameTime; //play time of the current game
+
+
+    // static variables:
+    static QString playerName;
+    static int boardsWin;
+    static int boardsLost;
+    static int boardsDraw;
+    static int boardsQty;  //number of boards of the current game
+    static int inGameTime; //play time of the current game
+
 private:
+
+    //methods:
     Ui::MainWindow *ui;
     QVector <TicTacToe*> gameList;   // dynamic boards list
-    void timerEvent(QTimerEvent *e); // check game status
-    void loadResults();              // loading data from file to results table widget
-    void addRecord(int score);
-    void saveRecordsToFile();
+    void timerEvent(QTimerEvent *e); // check game status - main cycle
 
-// fields
+
+    bool openRecordsDB();
+    void loadResultsFromDB();        // loading data from DB
+    void loadResultsFromFile();      // SPARE - loading data from file to results table widget
+
+    void addRecord(int score);
+
+    void saveRecordsToFile();        // SPARE - savng data to file from results table widget
+
+
+    // fields:
+    QSqlDatabase db;
+
     int startTime; //time of the start of the current game
     int gameType;  // FUN_GAME or CHALENGE_GAME
 
-//signals:
+    //signals:
     void startNewGame(int gameType);
     void breakGame();                // break button action - deleting all current boards and results
     void pauseGame();                // pause button action

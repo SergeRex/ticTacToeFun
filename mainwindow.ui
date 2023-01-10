@@ -429,7 +429,7 @@
      <bool>true</bool>
     </attribute>
     <attribute name="verticalHeaderDefaultSectionSize">
-     <number>20</number>
+     <number>24</number>
     </attribute>
     <attribute name="verticalHeaderHighlightSections">
      <bool>true</bool>
@@ -477,7 +477,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap>release/tttn1.png</pixmap>
+     <pixmap>tttn1.png</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
