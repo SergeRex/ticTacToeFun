@@ -8,12 +8,6 @@
 #include <QVector>
 
 
-//const int CELL_NORMAL_SIZE = 50;
-//const QSize BUTTON_SIZE = QSize(CELL_NORMAL_SIZE,CELL_NORMAL_SIZE);
-//const QFont FONT_SIZE = QFont("Arial", 35);
-
-
-
 const int BOARD_CELLS_NUM = 9;
 const int LINES_NUM = 8;
 
@@ -22,8 +16,8 @@ enum gameCond
     WIN_HUMAN,
     WIN_COMP,
     GAME_DRAW,
-    NOT_DEFINED,     // not yet
-    FULL_GAMEBOARD,
+    NOT_DEFINED, // in game
+    CHECKED      // for pow games
 };
 
 
@@ -40,37 +34,44 @@ class TicTacToe : public QWidget
 {
 
     public:
-        TicTacToe(QWidget *parent, int size, int font_size, int firstCellOccupied);
+        TicTacToe(QWidget *parent, int sizeNum);
         ~TicTacToe();
 
-        int getGameStatus () const;
+        QPushButton *btnCells;
+        int cellSize;
+
+        //int getGameStatus () const;
+        //void setGameStatus (gameCond);
+        int cellInit(int cell, int type);
+        int gameStatus;
+
+        int boardAnalysis();
+        int compTurn();
+        void checkGameEnd();
+
 
     private:
 
-        //
-        QLabel *lbStatus;
-        QPushButton *btnCells;
-        //
 
-        int *gameBoard;
-        int  *linesScore;
+        QLabel *lblcellCompleted;
 
-        int gameStatus;
+        int gameBoard[9];
+        int linesScore[8];
+
         int winLineNum;
 
         QVector <int> emptyCells;
-        static int linesMap[LINES_NUM][3];
+        static const int linesMap[LINES_NUM][3];
+        static int fontSizeMap[13];
 
         //
 
-        void boardAnalysis();
-        void checkGameEnd();
-        void compTurn();
-        int findEmptyInLine (int line);
+
+
+
+        //int findEmptyInLine (int line);
 
         int getEmptyCellInLine(int line) const;
-        void cellInit(int cell, int type);
-
 
     signals:
 

@@ -8,8 +8,9 @@
 #include <qmessagebox.h>
 #include <QFileDialog>
 #include <QLineEdit>
+#include <QtMath>
 
-int timerId;
+int timerId=1;
 
 QString MainWindow::playerName="";
 int MainWindow::boardsWin=0;
@@ -17,6 +18,8 @@ int MainWindow::boardsLost=0;
 int MainWindow::boardsDraw=0;
 int MainWindow::boardsQty;  //number of boards of the current game
 int MainWindow::inGameTime; //play time of the current game
+
+int MainWindow::gameType;
 
 //-----------------------------------------------------------------------------------------------------
 
@@ -26,37 +29,33 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 
     ui->setupUi(this);
 
-    connect (ui->btnBreak, &QPushButton::clicked, this, &MainWindow::breakGame);
+    ui->btnStartPow2->setIcon(QIcon("./srs/pow2icon.png"));
+    ui->btnStartPow2->setIconSize(QSize(65, 65));
+
+    ui->btnStartPow3->setIcon(QIcon("./srs/pow3icon.png"));
+    ui->btnStartPow3->setIconSize(QSize(65, 65));
+
+    ui->btnStartChalenge->setIcon(QIcon("./srs/challenge.jpg"));
+    ui->btnStartChalenge->setIconSize(QSize(65, 65));
+
+
+
+   // connect (ui->btnBreak, &QPushButton::clicked, this, &MainWindow::breakGame);
     connect (ui->btnPause, &QPushButton::clicked, this, &MainWindow::pauseGame);
     connect (ui->btnResults, &QPushButton::clicked, this, &MainWindow::switchToFullResults);
-    connect (ui->btnCloseResults, &QPushButton::clicked, this, &MainWindow::switchToBriefResults);
+    ui->btnResults->hide(); // tmp!
 
-    QSignalMapper *signalMapper = new QSignalMapper;
+    activeElementsSwitcher(IDLE_MODE);
 
-    connect(ui->btnStartChalenge, SIGNAL(clicked()), signalMapper, SLOT (map()));
-    connect(ui->btnStartFun, SIGNAL(clicked()), signalMapper, SLOT (map()));
 
-    signalMapper->setMapping(ui->btnStartChalenge, CHALENGE_GAME);
-    signalMapper->setMapping(ui->btnStartFun, FUN_GAME);
+    //ui->lbTimer->hide();
+    //ui->btnPause->setDisabled(true);
 
-    connect(signalMapper, &QSignalMapper::mappedInt,this, &MainWindow::startNewGame);
-
-    ui->lbTimer->hide();
-    ui->btnBreak->setDisabled(true);
-    ui->btnPause->setDisabled(true);
-    ui->btnCloseResults->hide();
-
-    QPixmap pixmap("blackboard.png");
+    QPixmap pixmap("./srs/blackboard.png");
     ui->lblImage->setPixmap(pixmap);
 
-    //ui->lblImage->show();
-
-    ui->statusbar->showMessage(tr("                                                           "
-                                  "                                                           "
-                                  "                                                           "
-                                  "                                Sergio Rex (c) 2022  v.1.2 "));
-
     // loading the records
+
     if (openRecordsDB())
     {
       loadResultsFromDB();
@@ -69,7 +68,13 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
         QMessageBox::information(this, "Load records data", "Can't open results from the server, local data from file is loaded");
     }
 
+
+
+   // startNewGame(POW2_GAME);
+
     switchToBriefResults();
+
+    //switchToFullResults();
 }
 //-----------------------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
@@ -82,15 +87,14 @@ void MainWindow::timerEvent(QTimerEvent *e)
 {
     Q_UNUSED(e);
 
-    int boardsLeft=-1;
-    int score=0;
-
     QTime qtime = QTime::currentTime();
 
     int ms = qtime.msecsSinceStartOfDay();
     inGameTime=ms-startTime;
     ui->lbTimer->setText(QString::number(inGameTime/1000));
-
+//---------------------------------------------------------
+    if ((gameType==FUN_GAME)||(gameType==CHALENGE_GAME))
+    {
     boardsLeft=boardsQty-boardsWin-boardsLost-boardsDraw;
 
     ui->lbBoardsLeft->setText(QString::number(boardsLeft));
@@ -101,19 +105,70 @@ void MainWindow::timerEvent(QTimerEvent *e)
     // if all boards completed than calc the score and show result
     if(boardsLeft==0)
     {
-        score=(boardsWin*2000+boardsDraw*1000-boardsLost*1000)/(inGameTime/1000);
+        gameScore=(boardsWin*2000+boardsDraw*1000-boardsLost*1000)/(inGameTime/1000);
 
         QString msg={", \nyour score is : "};
 
-        QMessageBox::information(this, "The game is over", playerName+msg+QString::number(score));
+        QMessageBox::information(this, "The game is over", playerName+msg+QString::number(gameScore));
 
-       // if((score>0)&&(boardsQty>=16)) // saving results if score is positive and boards qty is enought
+        if((gameScore>0)&&(boardsQty>=16)) // saving results if score is positive and boards qty is enought
         {
-            addRecord(score);
+            addRecord(gameScore);
         }
 
         breakGame();  // delete finished game
     }
+
+    }
+//-----------------------------------------------------
+    if (gameType==POW2_GAME)
+    {
+        if(pow2Game->gameStatus==WIN_COMP)
+        {
+        QMessageBox::information(this, "Game over", "You lost the game");
+        breakGame();
+        return;
+        }
+        if((pow2Game->gameStatus==WIN_HUMAN)||(pow2Game->gameStatus==GAME_DRAW))
+        {
+            //rscore=(boardsWin*2000+boardsDraw*1000-boardsLost*1000)/(inGameTime/1000);
+
+            QString msg={", \nyou won this game in sec: "};
+
+            QMessageBox::information(this, "Game over", playerName+msg+QString::number(inGameTime/1000));
+            breakGame();
+            return;
+        }
+
+
+        for (int i=0; i<boardsQty; i++)
+        {
+          if ((gameList[i]->gameStatus==WIN_HUMAN)||(gameList[i]->gameStatus==GAME_DRAW))
+          {
+              //gameList[i]->checkGameEnd();//!!!!!!!!
+              gameList[i]->gameStatus=CHECKED;
+
+              if (pow2Game->cellInit(i,-1)==NOT_DEFINED)
+              {
+                  int tmpcell=pow2Game->compTurn();
+                  pow2Game->cellInit(tmpcell,1);
+                  gameList[tmpcell]->gameStatus=WIN_COMP;
+                  gameList[tmpcell]->checkGameEnd();
+              }
+              return;
+          }
+
+          if (gameList[i]->gameStatus==WIN_COMP)
+          {
+              gameList[i]->gameStatus=CHECKED;
+              pow2Game->cellInit(i,1);
+
+              return;
+
+          }
+        }
+    }
+
 }
 //-----------------------------------------------------------------------------------------------------
 void MainWindow::pauseGame()
@@ -124,22 +179,35 @@ void MainWindow::pauseGame()
     int beginPause = qtime.msecsSinceStartOfDay();
 
     killTimer(timerId);
+    timerId = 0;
 
-    for(TicTacToe *game : gameList)
+    for(int i=0; i<gameList.size();i++)
     {
-      game->hide();
+        gameList[i]->hide();
     }
 
     QMessageBox mb;
-    mb.setText("Game paused, timer stopped..\nAnd all boards are hided :)\n\nPress OK to continue...");
+    mb.setText("Game paused, timer stopped..\nAnd all boards are hided :)\n\nPress Enter to continue...");
+
+    QAbstractButton *breakGameButton = mb.addButton("Break game",QMessageBox::ResetRole);
+    //QAbstractButton *continueGameButton = mb.addButton("Continue game",QMessageBox::AcceptRole);
+
     mb.exec();
+
 
     // continue...
 
-    for(TicTacToe *game : gameList)
+    if (mb.clickedButton()==breakGameButton)
     {
-      game->show();
+       breakGame();
     }
+    else
+    {
+
+    for(int i=0; i<gameList.size();i++)
+        {
+            gameList[i]->show();
+        }
 
     qtime = QTime::currentTime();
     int endPause = qtime.msecsSinceStartOfDay();
@@ -147,6 +215,7 @@ void MainWindow::pauseGame()
     startTime=startTime+(endPause-beginPause);
 
     timerId=startTimer(1000);
+    }
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -154,103 +223,74 @@ void MainWindow::breakGame()
 {
 
     killTimer(timerId);
+    timerId = 0;
 
-    for(TicTacToe *game : gameList)
+    for(int i=0; i<gameList.size();i++)
     {
-        game->hide();
-        delete game;
+        gameList[i]->hide();
+        delete gameList[i];
     }
     gameList.clear();
+    //delete pow2Game;
 
-    ui->btnBreak->setDisabled(true);
-    ui->btnPause->setDisabled(true);
-    ui->btnStartChalenge->setDisabled(false);
-    ui->btnStartFun->setDisabled(false);
-    ui->btnResults->setDisabled(false);
+    QPixmap pixmap("./srs/blackboard.png");
+    ui->lblImage->setPixmap(pixmap);
 
-     ui->lbTimer->hide();
+    activeElementsSwitcher(IDLE_MODE);
 
-     ui->lbBoardsLeft->setText(QString::number(0));
-     ui->lbBoardsWin->setText(QString::number(0));
-     ui->lbBoardsDraw->setText(QString::number(0));
-     ui->lbBoardsLost->setText(QString::number(0));
-
-     boardsWin=0;
-     boardsLost=0;
-     boardsDraw=0;
+    boardsWin=0;
+    boardsLost=0;
+    boardsDraw=0;
+    boardsLeft=0;
+    gameScore=0;
 }
 //-----------------------------------------------------------------------------------------------------
 void MainWindow::startNewGame(int gameType)
 {
 
-    if (playerName=="")
-    {
-        QDialog *enterNameDlg = new QDialog;
-        QLineEdit *nameEdit = new QLineEdit("Unknown player", enterNameDlg);
-        QPushButton *pbOK = new QPushButton("OK", enterNameDlg);
-        QGridLayout *grid = new QGridLayout(enterNameDlg);
-        grid->addWidget(nameEdit, 0, 0);
-        grid->addWidget(pbOK, 0, 1);
-        setLayout(grid);
-        connect (pbOK, &QPushButton::clicked, enterNameDlg, &QDialog::close);
-        enterNameDlg->exec();
-        playerName=nameEdit->text();
-    }
+     // enterPlayerNameDialog();
+
+     this->gameType=gameType;
+
+     if (gameType==FUN_GAME) boardsQty=ui->sbGamesQty->value();
+     if (gameType==CHALENGE_GAME) boardsQty=16;
+     if (gameType==POW2_GAME) boardsQty=9;
+
+     ui->lbBoardsLeft->setText(QString::number(boardsQty));
 
 
     TicTacToe* newgame;
-    int bdWide=146;  // size of board for 4x4 boards field
-    int bdOffs=158;  // offsets between boards for 4x4 boards field
-    int bdFontSz=32; // size of field signs for 4x4 boards field
-    int bdCols=1;    // number of cols/rows
 
-    this->gameType=gameType;
+    int bdCols = qSqrt(boardsQty);;    // number of cols/rows
+    if ((bdCols*bdCols)!=boardsQty) bdCols++;
 
-    if (gameType==FUN_GAME)
-        boardsQty=ui->sbGamesQty->value();
-    else boardsQty=16;
+    int bdWide = (BLACKBOARD_WIDTH)/bdCols;
 
-    if ((boardsQty>1)&&(boardsQty<=4)) bdCols=2;
-    if ((boardsQty>4)&&(boardsQty<=9)) bdCols=3;
-    if ((boardsQty>9)&&(boardsQty<=16)) bdCols=4;
-    if ((boardsQty>16)&&(boardsQty<=25)) bdCols=5;
-    if ((boardsQty>25)&&(boardsQty<=36)) bdCols=6;
-    if ((boardsQty>36)&&(boardsQty<=49)) bdCols=7;
-    if ((boardsQty>49)&&(boardsQty<=64)) bdCols=8;
-    if ((boardsQty>64)&&(boardsQty<=81)) bdCols=9;
-    if ((boardsQty>81)&&(boardsQty<=100)) bdCols=10;
-    if ((boardsQty>100)&&(boardsQty<=121)) bdCols=11;
-
-    bdWide=(bdWide*4)/bdCols;
-    bdOffs=(bdOffs*4)/bdCols;
-    bdFontSz=(bdFontSz*4)/(bdCols);
-    if (bdCols==7) { bdWide+=5;bdOffs-=2; }
-    if (bdCols==8) { bdWide+=5;bdOffs-=2; }
-    if (bdCols==9) { bdWide+=5;bdOffs-=2; }
-    if (bdCols==10) { bdWide+=5;bdOffs-=2; }
-    if (bdCols==11) { bdWide+=5;bdOffs-=2; }
-
-    ui->lbBoardsLeft->setText(QString::number(boardsQty));
-
-    ui->btnBreak->setDisabled(false);
-    ui->btnPause->setDisabled(false);
-    ui->btnStartChalenge->setDisabled(true);
-    ui->btnStartFun->setDisabled(true);
-    ui->btnResults->setDisabled(true);
 
 
     for (int i=0; i<boardsQty; i++)
     {
-        if (i%2==0) newgame = new TicTacToe (this,bdWide/3,bdFontSz,i/2%8);
-        else newgame = new TicTacToe (this,bdWide/3,bdFontSz,-1);
+        newgame = new TicTacToe (this,bdCols);
+        if (i%2==0) newgame->cellInit(i/2%8,1);
         gameList.push_back(newgame);
     }
 
+    //ui->gridMain->setSpacing(0);
+    //ui->gridMain->setContentsMargins(10, 10, 10, 10);
 
-    for (int i=0; i<boardsQty; i++)
+    for (int i=0;i<boardsQty; i++)
     {
-        gameList[i]->setGeometry(bdOffs*(i%bdCols)+170+10, bdOffs*(i/bdCols)+40, bdWide, bdWide);
-        gameList[i]->show();
+    gameList[i]->setGeometry(190+(i%bdCols)*bdWide,50+(i/bdCols)*bdWide,bdWide,bdWide);
+    gameList[i]->show();
+    }
+
+    if (gameType==POW2_GAME)
+    {
+
+        QPixmap pixmap("./srs/board9.jpg");
+        ui->lblImage->setPixmap(pixmap);
+        ui->lbBoardsLeft->setText(QString::number(1));
+        pow2Game = new TicTacToe (this,1);
     }
 
      QTime startTimeC = QTime::currentTime();
@@ -260,37 +300,39 @@ void MainWindow::startNewGame(int gameType)
      ui->lbTimer->setText("0");
      ui->lbTimer->show();
 
-     timerId=startTimer(1000);
+     timerId=startTimer(200);
 }
 //-----------------------------------------------------------------------------------------------------
 void MainWindow::switchToFullResults()
 {
     //move table to center area location and enlarge to view all field
     ui->tableResult->setGeometry(250,50,480,580);
-    ui->btnCloseResults->show();
-    ui->btnResults->hide();
+    //ui->btnCloseResults->show();
+    ui->btnResults->show();
     // make visible both headers and vertical scroll bar
     ui->tableResult->verticalHeader()->show();
     ui->tableResult->horizontalHeader()->show();
     ui->tableResult->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //
-    ui->btnStartChalenge->setDisabled(true);
-    ui->btnStartFun->setDisabled(true);
+    //ui->btnStartChalenge->setDisabled(true);
+    //ui->btnStartFun->setDisabled(true);
+    ui->tableResult->show();
 }
 //-----------------------------------------------------------------------------------------------------
 void MainWindow::switchToBriefResults()
 {
-    ui->tableResult->setGeometry(10,430,140,240);
-    ui->btnCloseResults->hide();
-    ui->btnResults->show();
+    //ui->tableResult->setGeometry(10,490,140,190);
 
     ui->tableResult->verticalHeader()->hide();
     ui->tableResult->horizontalHeader()->hide();
 
     ui->tableResult->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+
     ui->btnStartChalenge->setDisabled(false);
     ui->btnStartFun->setDisabled(false);
+
+    //ui->tableResult->hide();
 
 }
 //-----------------------------------------------------------------------------------------------------
@@ -413,7 +455,6 @@ void MainWindow::saveRecordsToFile()
     outputFile.close();
 }
 //-----------------------------------------------------------------------------------------------------
-
 bool MainWindow::openRecordsDB()
 {
     db = QSqlDatabase::addDatabase("QMYSQL");
@@ -462,4 +503,84 @@ void MainWindow::loadResultsFromDB()
     ui->tableResult->sortByColumn(1,Qt::DescendingOrder);
     ui->tableResult->setSortingEnabled(false);
     ui->tableResult->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
+//-----------------------------------------------------------------------------------------------------
+void MainWindow::on_btnStartPow2_pressed()
+{
+    activeElementsSwitcher(GAME_MODE);
+    startNewGame(POW2_GAME);
+}
+
+void MainWindow::on_btnStartFun_pressed()
+{
+    activeElementsSwitcher(GAME_MODE);
+    startNewGame(FUN_GAME);
+}
+
+void MainWindow::on_btnStartChalenge_pressed()
+{
+    activeElementsSwitcher(GAME_MODE);
+    startNewGame(CHALENGE_GAME);
+}
+//-----------------------------------------------------------------------------------------------------
+void MainWindow::enterPlayerNameDialog()
+{
+    if (playerName=="")
+    {
+    QDialog *enterNameDlg = new QDialog;
+    QLineEdit *nameEdit = new QLineEdit("Unknown player", enterNameDlg);
+    QPushButton *pbOK = new QPushButton("OK", enterNameDlg);
+    QLabel *label = new QLabel ("Please enter you name: ");
+    QGridLayout *grid = new QGridLayout(enterNameDlg);
+
+    grid->addWidget(label, 0, 0);
+    grid->addWidget(nameEdit, 1, 0);
+    grid->addWidget(pbOK, 1, 1);
+    //setLayout(grid);
+    connect (pbOK, &QPushButton::clicked, enterNameDlg, &QDialog::close);
+    enterNameDlg->exec();
+    playerName=nameEdit->text();
+    }
+}
+//-----------------------------------------------------------------------------------------------------
+void MainWindow::activeElementsSwitcher(int mode)
+{
+  if(mode==IDLE_MODE)
+  {
+
+    ui->btnPause->setDisabled(true);
+
+    ui->btnStartChalenge->setDisabled(false);
+    ui->btnStartFun->setDisabled(false);
+    ui->btnStartPow2->setDisabled(false);
+    ui->btnStartPow3->setDisabled(false);
+
+    ui->btnResults->setDisabled(false);
+
+    ui->lbTimer->hide();
+    ui->lbBoardsLeft->setText(QString::number(0));
+    ui->lbBoardsWin->setText(QString::number(0));
+    ui->lbBoardsDraw->setText(QString::number(0));
+    ui->lbBoardsLost->setText(QString::number(0));
+  }
+
+  if(mode==GAME_MODE)
+  {
+
+    ui->btnPause->setDisabled(false);
+
+    ui->btnStartChalenge->setDisabled(true);
+    ui->btnStartFun->setDisabled(true);
+    ui->btnStartPow2->setDisabled(true);
+    ui->btnStartPow3->setDisabled(true);
+    //ui->groupBox_3->setDisabled(true);
+    ui->btnResults->setDisabled(false);
+
+    ui->lbTimer->show();
+    ui->lbBoardsLeft->setText(QString::number(0));
+    ui->lbBoardsWin->setText(QString::number(0));
+    ui->lbBoardsDraw->setText(QString::number(0));
+    ui->lbBoardsLost->setText(QString::number(0));
+  }
+
 }

@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 
     //mWindow.resize(250, 150);
     mWindow.setWindowTitle("TicTacToe Fun :)");
-    mWindow.setFixedSize(840,735);
+    //mWindow.setFixedSize(860,735);
     mWindow.show();
     return a.exec();
 }
