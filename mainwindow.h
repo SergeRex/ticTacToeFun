@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QTime>
-
 #include <QSqlDatabase>
 #include <QDebug>
 #include <QSqlQuery>
@@ -12,26 +11,23 @@
 #include <QSqlRecord>
 #include <QTableWidget>
 
-
-
-#include "tictactoe.h"
+#include "game.h"
 
 enum gameTypeEnum
 {
-    IDLE_MODE,
-    GAME_MODE,
-    FUN_GAME,
-    CHALENGE_GAME,
-    POW2_GAME,
-    POW3_GAME,     // in game
+    FUN_GAME=0,
+    CHALENGE_GAME=1,
+    POW2_GAME=2,
+    POW3_GAME=3,
+    CRAZY_GAME=4,
+    IDLE_MODE=5,
+    GAME_MODE=6,
+    LARGE_GAME_MODE=7,
 };
 
-//const int FUN_GAME = 1;
-//const int CHALENGE_GAME = 2;
-//const int POW2_GAME = 3;
-//const int POW3_GAME = 4;
 
-const int BLACKBOARD_WIDTH = 640;
+const int ORIGIN_X = 195;
+const int ORIGIN_Y = 50;
 
 
 QT_BEGIN_NAMESPACE
@@ -45,66 +41,56 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void initSignals();
 
-
-    // static variables:
-    static QString playerName;
-    static int boardsWin;
-    static int boardsLost;
-    static int boardsDraw;
-    static int boardsQty;  //number of boards of the current game
-    static int inGameTime; //play time of the current game
-    static int gameType;  // FUN_GAME, CHALENGE_GAME, POW2_GAME
-
-private slots:
-
-    void on_btnStartPow2_pressed();
-
-    void on_btnStartFun_pressed();
-
-    void on_btnStartChalenge_pressed();
+   // static variables:
+   static QString playerName;
+   static int boardsWin;
+   static int boardsLost;
+   static int boardsDraw;
+   static int boardsLeft;
+   static int boardsQty;  //number of boards of the current game
+   static int gameScore;
+   static int inGameTime; //play time of the current game
+   static int gameType;  // FUN_GAME, CHALENGE_GAME, POW2_GAME
 
 private:
 
-
-
-    //methods:
     Ui::MainWindow *ui;
-    QVector <TicTacToe*> gameList;   // dynamic boards list
 
-    //QLabel* lblcellCompleted[9];
+    QVector <Game*> gamesList;
+    TicTacToe *pow3Game;
 
-
-    TicTacToe* pow2Game;
     void timerEvent(QTimerEvent *e); // check game status - main cycle
 
+    // working with records
+    QSqlDatabase dbServer; // server SQL base
+    QSqlDatabase dbLocal;  // local SQLLite database
 
-    bool openRecordsDB();
-    void loadResultsFromDB();        // loading data from DB
-    void loadResultsFromFile();      // SPARE - loading data from file to results table widget
+    bool addRecordtoDB(QSqlDatabase &db);
 
-    void addRecord(int score);
+    void assignDataBases();
+    void copyResultsToLocalDB();
+    void loadResultsFromDB(QTableWidget &table, int gameType);
+    void sortTableRows(QTableWidget &table, int colNum);
+    void addRecord(QTableWidget &table,int gameType);
 
-    void saveRecordsToFile();        // SPARE - savng data to file from results table widget
+
+    void startGame (int gameType);
+
+    int startTime;          //time of the start of the current game
+    void startGameTimer();
+    void breakGame();       // break button action - deleting all current boards and results
+    void pauseGame();       // pause button action
 
 
-    // fields:
-    QSqlDatabase db;
-    int boardsLeft=0;
-    int gameScore=0;
 
-    int startTime; //time of the start of the current game
-
-    void startNewGame(int gameType);
-    void breakGame();                // break button action - deleting all current boards and results
-    void pauseGame();                // pause button action
-
-    void switchToBriefResults();     // top players at the left of window table widget
-    void switchToFullResults();      // show full version of the results
     void activeElementsSwitcher(int mode);
-
     void enterPlayerNameDialog();
-
+    void loadIcons();
+    void showResults();
+    void handleGameOver(int matchStatus);
+    int enterBoardsNum(int gameType);
 
 };
 #endif // MAINWINDOW_H

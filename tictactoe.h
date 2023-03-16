@@ -17,7 +17,11 @@ enum gameCond
     WIN_COMP,
     GAME_DRAW,
     NOT_DEFINED, // in game
-    CHECKED      // for pow games
+    CHECKED,
+    GAME_FINISHED,
+    COMPLETED,
+    LOST
+    // for pow games
 };
 
 
@@ -34,42 +38,36 @@ class TicTacToe : public QWidget
 {
 
     public:
-        TicTacToe(QWidget *parent, int sizeNum);
+        TicTacToe(QWidget *parent, int boardSize);
+        TicTacToe(QWidget *parent); // virtual board
         ~TicTacToe();
 
-        QPushButton *btnCells;
-        int cellSize;
+        int gameStatus=NOT_DEFINED;
 
-        //int getGameStatus () const;
-        //void setGameStatus (gameCond);
+        QPushButton *btnCells[9];
+
         int cellInit(int cell, int type);
-        int gameStatus;
-
         int boardAnalysis();
         int compTurn();
         void checkGameEnd();
 
+        int getEmptyCellsQty() const;
+
+
 
     private:
 
-
+        bool virtualBoard=false;
         QLabel *lblcellCompleted;
 
-        int gameBoard[9];
+        int gameBoard[9]={0,0,0,0,0,0,0,0,0};
+
         int linesScore[8];
 
-        int winLineNum;
-
+        int winLineNum=-1;
         QVector <int> emptyCells;
+
         static const int linesMap[LINES_NUM][3];
-        static int fontSizeMap[13];
-
-        //
-
-
-
-
-        //int findEmptyInLine (int line);
 
         int getEmptyCellInLine(int line) const;
 

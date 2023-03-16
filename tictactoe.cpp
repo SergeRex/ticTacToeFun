@@ -15,113 +15,80 @@
 //               -6-
 //                   diag
 
-const int TicTacToe::linesMap[8][3]=  {{0,1,2},{3,4,5},{6,7,8}, // rows 0-2
-                                {0,3,6},{1,4,7},{2,5,8},        // columns 3-5
-                                {0,4,8},{2,4,6}};               //diagonales 6-7
-
-int TicTacToe::fontSizeMap[13]={0,60,50,45,32,28,24,20,16,12,8,4,4};
+const int TicTacToe::linesMap[8][3]= {{0,1,2},{3,4,5},{6,7,8}, // rows 0-2
+                                      {0,3,6},{1,4,7},{2,5,8}, // columns 3-5
+                                      {0,4,8},{2,4,6}};        //diagonales 6-7
 
 //----------------------------------------------------------------------------------------------------
 
-TicTacToe::TicTacToe(QWidget *parent, int cellSize)
+TicTacToe::TicTacToe(QWidget *parent, int boardSize)
      : QWidget(parent)
 {
+    boardSize-=5;
+    this->setFixedSize(boardSize,boardSize);
+    int cellSize=(boardSize/3);
 
-    //TicTacToe *ttt = new TicTacToe(this,cellSize);
-
-
-
-    this->cellSize=cellSize;
-    //gameBoard = new int[9];
-    //linesScore = new int[8];
-    gameStatus=NOT_DEFINED;
-
-    int bdWide = (BLACKBOARD_WIDTH)/cellSize;
-    int bdFontSz=fontSizeMap[cellSize];
-
-    this->setFixedSize(bdWide-10,bdWide-10);
-
-    bdWide=bdWide/3;
-
-    //bdWide=bdWide*19/20;
-
-    QSize qSize;
-    qSize = QSize(bdWide,bdWide);
-    QFont qFont = QFont("Arial", bdFontSz);
-
-    btnCells = new QPushButton[9]; // cells-buttons
-
+    QFont qFont = QFont("Arial", (cellSize*70)/100);
     QSignalMapper *signalMapper = new QSignalMapper;
-    QGridLayout *gridbox = new QGridLayout(this);
-    //QPushButton *pbt = new QPushButton(this);
-    //pbt->setGeometry(QRect(100, 50, 141, 31));
-    //pbt->show();
-    gridbox->setSpacing(0);
-    gridbox->setContentsMargins(0, 0, 0, 0);
 
     for (int i=0; i<BOARD_CELLS_NUM; i++)  //
     {
-        btnCells[i].setFixedSize(bdWide-10,bdWide-10);
-        btnCells[i].setFont(qFont);
-        btnCells[i].setCursor(Qt::PointingHandCursor);
-        cellInit(i,0);
+        btnCells[i] = new QPushButton(" ", this);
 
-        //gridbox->setAlignment(&btnCells[i], Qt::AlignHCenter | Qt::AlignHCenter);
+        btnCells[i]->setFixedSize(cellSize+3,cellSize+3);
+        btnCells[i]->setFont(qFont);
+        btnCells[i]->setCursor(Qt::PointingHandCursor);
+        btnCells[i]->move((i/3)*cellSize,(i%3)*cellSize);
 
-        gridbox->addWidget(&btnCells[i], i/3, i%3, Qt::AlignHCenter | Qt::AlignHCenter);
+        btnCells[i]->setStyleSheet("");
 
-        connect(btnCells+i, SIGNAL(clicked()), signalMapper, SLOT (map()));
-        signalMapper->setMapping(btnCells+i, i);
+        connect(btnCells[i], SIGNAL(clicked()), signalMapper, SLOT (map()));
+        signalMapper->setMapping(btnCells[i], i);
     }
 
     connect(signalMapper, &QSignalMapper::mappedInt,this, &TicTacToe::handleCellClick);
 
-    //if (firstCellOccupied!=-1) cellInit(firstCellOccupied,1);
     lblcellCompleted = new QLabel(this);
 }
-
+//----------------------------------------------------------------------------------------------------
+TicTacToe::TicTacToe(QWidget *parent)
+     : QWidget(parent)
+{
+    virtualBoard=true;
+}
 //----------------------------------------------------------------------------------------------------
 TicTacToe::~TicTacToe()
 {
+    if(!virtualBoard)
+    {
     this->hide();
-    delete [] btnCells;
-
-    emptyCells.clear();
+    for (int i=0; i<9;i++) delete btnCells[i];
+    //emptyCells.clear();
     delete lblcellCompleted;
-
+    }
 }
-//----------------------------------------------------------------------------------------------------
-/*int TicTacToe::getGameStatus () const
-{
-    return gameStatus;
-}*/
 //----------------------------------------------------------------------------------------------------
 void TicTacToe::handleCellClick (int cell)
 {
    if (cellInit(cell,-1)==NOT_DEFINED) cellInit(compTurn(),1);
     checkGameEnd();
 
-
-
-
     /* cellInit(cell,-1);  //human's turn
-
     boardAnalysis();    // check game status
-
     if (gameStatus==NOT_DEFINED)
     {
       cellInit(compTurn(),1);      // comp's turn
       boardAnalysis(); // check game status
     }
-
     checkGameEnd();  // board end game actions
-
    */
 }
 //----------------------------------------------------------------------------------------------------
 
 int TicTacToe::boardAnalysis ()
 {
+
+    winLineNum=-1;
 
     // populating score array of all 8 lines with sums of all lines cells;
     for (int line=0; line<LINES_NUM; line++)
@@ -138,7 +105,6 @@ int TicTacToe::boardAnalysis ()
     //               -6-
     //                   diag
 
-
     int maxLineScore=0;
     int minLineScore=0;
 
@@ -151,7 +117,7 @@ int TicTacToe::boardAnalysis ()
                 {
                     winLineNum=i;
                     gameStatus=WIN_HUMAN;
-                    MainWindow::boardsWin++;
+                    if (!virtualBoard) MainWindow::boardsWin++;
                     return WIN_HUMAN;
                 }
                }
@@ -162,7 +128,7 @@ int TicTacToe::boardAnalysis ()
                 {
                     winLineNum=i;
                     gameStatus=WIN_COMP;
-                    MainWindow::boardsLost++;
+                    if (!virtualBoard) MainWindow::boardsLost++;
                     return WIN_COMP;
                 }
 
@@ -180,55 +146,54 @@ int TicTacToe::boardAnalysis ()
  if (emptyCells.isEmpty())
     {
      gameStatus=GAME_DRAW;
-     MainWindow::boardsDraw++;
+     if (!virtualBoard) MainWindow::boardsDraw++;
      return GAME_DRAW;
     }
 
  gameStatus=NOT_DEFINED;
  return NOT_DEFINED;
-
 }
 //----------------------------------------------------------------------------------------------------
 
 void TicTacToe::checkGameEnd()
 {
 
-    if (gameStatus==NOT_DEFINED) return;
+    if ((virtualBoard)||(gameStatus==NOT_DEFINED)) return;// no draw for virtual game break or if game is not finished
 
-    for(int i=0;i<9;i++)
+
+    for(int i=0;i<BOARD_CELLS_NUM;i++)
         {
-            btnCells[i].setDisabled(true);
-            btnCells[i].setStyleSheet("background-color: lightYellow");
+         btnCells[i]->setDisabled(true);
+
+         if (gameStatus==WIN_COMP) btnCells[i]->setStyleSheet("background-color: rgb(255, 213, 219)");
+         if (gameStatus==WIN_HUMAN) btnCells[i]->setStyleSheet("background-color: rgb(224, 255, 210);");
+         if (gameStatus==GAME_DRAW) btnCells[i]->setStyleSheet("background-color: lightYellow");
         }
 
-    if (gameStatus!=GAME_DRAW)
+    if ((gameStatus!=GAME_DRAW)&&(winLineNum!=-1))
         {
-            for (int i=0; i<3;i++)
+
+        for (int i=0; i<3;i++)
             {
             int cell=linesMap[winLineNum][i];
-               /* QPalette palette = btnCells[cell].palette();
-                palette.setColor(btnCells[cell].backgroundRole(), colorValue);
-                palette.setColor(btnCells[cell].foregroundRole(), colorValue);
-                btnCells[cell].setPalette(palette);*/
 
-                if (gameStatus==WIN_COMP) btnCells[cell].setStyleSheet("background-color: Red");
-                if (gameStatus==WIN_HUMAN) btnCells[cell].setStyleSheet("background-color: lightGreen");
+            if (gameStatus==WIN_COMP) btnCells[cell]->setStyleSheet("background-color: Red");
+            if (gameStatus==WIN_HUMAN) btnCells[cell]->setStyleSheet("background-color: lightGreen");
             }
         }
-    if (MainWindow::gameType==POW2_GAME)
+
+    lblcellCompleted->setGeometry(0,0,this->width(),this->height());
+
+
+    if ((MainWindow::gameType==POW2_GAME)||(MainWindow::gameType==POW3_GAME))
     {
-
-        lblcellCompleted->setGeometry(0,0,this->width(),this->height());
-
         if (gameStatus==WIN_COMP) lblcellCompleted->setPixmap(QPixmap("./srs/signO.png"));
         if ((gameStatus==WIN_HUMAN)||(gameStatus==GAME_DRAW)) lblcellCompleted->setPixmap(QPixmap("./srs/signX.png"));
-        //if  lblcellCompleted->setPixmap(QPixmap("./srs/signX.png"));
+    }
+    else lblcellCompleted->setPixmap(QPixmap("./srs/checked2.png"));
 
-        //lblcellCompleted->setPixmap(pixmap);
-        lblcellCompleted->setScaledContents(true);
-        lblcellCompleted->show();
-
-     }
+    lblcellCompleted->setScaledContents(true);
+    lblcellCompleted->show();
 
 }
 //----------------------------------------------------------------------------------------------------
@@ -244,98 +209,67 @@ int TicTacToe::getEmptyCellInLine(int line) const
     }
     return -1;
 }
-
 //----------------------------------------------------------------------------------------------------
-
 int TicTacToe::cellInit(int cell, int type)
 {
-    if (type==0)
-        {
-        btnCells[cell].setText(" ");
-        btnCells[cell].setDisabled(false);
-        gameBoard[cell]=0;
-        }
+    gameBoard[cell]=type;
 
-    if (type==1)
-        {
+    // assign buttons if game is not virtual
+    if((!virtualBoard)&&(type==0))
+    {
+        btnCells[cell]->setText(" ");
+        btnCells[cell]->setDisabled(false);
+    }
 
-        btnCells[cell].setText("O");
-        btnCells[cell].setDisabled(true);
-        gameBoard[cell]=1;
-        }
+    if((!virtualBoard)&&(type==1))
+    {
+        btnCells[cell]->setText("O");
+        btnCells[cell]->setDisabled(true);
+    }
 
-    if (type==-1)
-        {
-        btnCells[cell].setText("X");
-        btnCells[cell].setDisabled(true);
-        gameBoard[cell]=-1;
-        }
+    if((!virtualBoard)&&(type==-1))
+    {
+        btnCells[cell]->setText("X");
+        btnCells[cell]->setDisabled(true);
+    }
 
     return boardAnalysis();  // check game status after move
 }
-
 //----------------------------------------------------------------------------------------------------
-
 int TicTacToe::compTurn()
 {
-    //int cell=emptyCells[0];
 
-    for (int line=0; line<LINES_NUM;line++) //if x2 "O" in line
-     if (linesScore[line]==2)
-     {
-        // cellInit(getEmptyCellInLine(line),1);
-         return getEmptyCellInLine(line);
-     }
+    //QMessageBox::information(this, "Msg", "Begin ");
 
-    for (int line=0; line<LINES_NUM;line++) //if x2 "X" in line
-     if (linesScore[line]==-2)
-     {
-        // cellInit(getEmptyCellInLine(line),1);
-         return getEmptyCellInLine(line);
-     }
+    // priority 1 -- put 3rd "O" if two "O" in line - COMPUTER DEFINETLY WIN
+    for (int line=0; line<LINES_NUM;line++)
+     if (linesScore[line]==2) return getEmptyCellInLine(line);
 
-    if(emptyCells.size()==1)            // no choise if 1 empty left
-     {
-        //cellInit(emptyCells[0],1);
-        return emptyCells[0];
-     }
+    // priority 2 -- put "O" if two "X" in line - DEFENCE NOT LOOSE
+    for (int line=0; line<LINES_NUM;line++)
+     if (linesScore[line]==-2)return getEmptyCellInLine(line);
 
-    if(emptyCells.contains(4))          // center
-    {
-       //cellInit(4,1);
-       return 4;
-    }
+    // priority 3 -- put "O" in the center cell
+    if(emptyCells.contains(4)) return 4;
 
+    // priority 5 -- put "O" in any of 4 corners
 
-    if(emptyCells.contains(0))          // corners
-    {
-       //cellInit(0,1);
-       return 0;
-    }
+    if(emptyCells.contains(0)) return 0;
 
+    if(emptyCells.contains(2)) return 2;
 
-    if(emptyCells.contains(2))
-    {
-       //cellInit(2,1);
-       return 2;
-    }
+    if(emptyCells.contains(6)) return 6;
 
+    if(emptyCells.contains(8)) return 8;
 
-    if(emptyCells.contains(6))
-    {
-       //cellInit(6,1);
-       return 6;
-    }
-
-    if(emptyCells.contains(8))
-    {
-       //cellInit(8,1);
-       return 8;
-    }
-
- // if nothing above than last empty cell in list
-    //cellInit(emptyCells.size()-1,1);
-    return emptyCells.size()-1;
-
+    // lowest prioryty - -put "O" in the first free cell
+    return emptyCells[0];
 }
 //----------------------------------------------------------------------------------------------------
+int TicTacToe::getEmptyCellsQty() const
+{
+    int emptyCellsQty=0;
+    for (int i=0; i<BOARD_CELLS_NUM;i++)
+        if (gameBoard[i]==0) emptyCellsQty++;
+    return emptyCellsQty;
+}
