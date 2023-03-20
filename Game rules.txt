@@ -1,0 +1,11 @@
+The app realizes the classic tic-tac-toe game with possibility to play multiple games on one global desk board and also 'ultimate' tic-tac-toe (the game within a game) and 'extreme' tic-tac-toe (the game within a game within a game).
+
+The TRAINING mode allows playing a chosen quantity of classic tic-tac-toe games on one blackboard just for practice.
+
+To play COMPETITION you should choose at least 16 games and try to win (or draw) all of them as fast as you can to gain the maximum game points. 
+
+ULTIMATE tic-tac-toe is a game of the second power which is composed of nine tic-tac-toe boards arranged in a 3x3 grid. Player and computer take turns playing on the smaller tic-tac-toe boards until one of them wins on the larger tic-tac-toe board. If the player wins OR draws he puts "X" on the larger board, if the computer wins it puts "O" on the larger board. The faster you win or tie the global game the more points you earn.
+
+EXTREME tic-tac-toe is a game of the third power which is composed of nine tic-tac-toe ultimate boards (with 9 small tic-tac-toe games in each) arranged in a 3x3 grid, i.e. 81 small tic-tac-toe games. The faster you win or tie the more points you get.
+
+CRAZY MODE was created just to demonstrate that the game engine allows creating a variable quantity of games with different game board’s sizes and locations on the blackboard, but it still allows playing this game as 'competition' as it includes more than 16 games.

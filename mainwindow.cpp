@@ -31,7 +31,6 @@ int MainWindow::gameType;
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-
     ui->setupUi(this);
 
     initSignals();
@@ -39,28 +38,14 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
     activeElementsSwitcher(IDLE_MODE);
     assignDataBases();
 
-
-    if (dbLocal.open())  // loading the records
+    if (dbServer.open())
     {
-      if (dbServer.open())
-        {
-          copyResultsToLocalDB();
-          dbServer.close();
-        }
-      else {
-             qDebug() << dbServer.lastError().text();
-             QMessageBox::information(this, "Can't open server db", dbServer.lastError().text());
-           }
-
-      loadResultsFromDB(*ui->tableResult, CHALENGE_GAME);
-      loadResultsFromDB(*ui->tableResultPow2, POW2_GAME);
-      loadResultsFromDB(*ui->tableResultPow3, POW3_GAME);
-      dbLocal.close();
+        loadResultsFromDB(*ui->tableResult, CHALENGE_GAME);
+        loadResultsFromDB(*ui->tableResultPow2, POW2_GAME);
+        loadResultsFromDB(*ui->tableResultPow3, POW3_GAME);
+        dbServer.close();
     }
-    else {
-           //qDebug() << dbServer.lastError().text();
-           QMessageBox::information(this, "Can't open local db", dbLocal.lastError().text());
-         }
+    else QMessageBox::information(this, "Can't load results from server. ", dbServer.lastError().text());
 }
 //----------------------------------------------------------------------------------------------------------------------------
 MainWindow::~MainWindow()
@@ -73,7 +58,7 @@ void MainWindow::initSignals()
     connect (ui->btnPause, &QPushButton::clicked, this, &MainWindow::pauseGame);
     connect (ui->btnChangeName, &QPushButton::clicked, this, &MainWindow::enterPlayerNameDialog);
 
-    //game buttons
+    //game buttons linked to startGame function
     QSignalMapper *signalMapper = new QSignalMapper;
 
     connect(ui->btnStartFun, SIGNAL(clicked()), signalMapper, SLOT (map()));
@@ -262,88 +247,43 @@ void MainWindow::breakGame()
     ui->lbTimer->setText(QString::number(inGameTime/1000));
 }
 //----------------------------------------------------------------------------------------------------------------------------
-void MainWindow::copyResultsToLocalDB()
-{
-    QSqlQuery queryServer(dbServer);
-    QSqlQuery queryLocal(dbLocal);
-
-    //int count=0; //QMessageBox::information(this, "", rec.value(1).toString());
-
-    //queryLocal.exec("CREATE TABLE `TicTacToeChallengeResults` (`Player Name`, `Score`, `Time`, `Boards`, `Won`, `Draw`, `Lost`, `Date`, `Gametype`)");
-    queryLocal.exec("DELETE FROM`TicTacToeChallengeResults`");
-    queryServer.exec("SELECT * FROM `TicTacToeChallengeResults` WHERE 1");
-
-    while (queryServer.next())
-    {
-        QSqlRecord rec = queryServer.record();
-
-        if (queryLocal.prepare("INSERT INTO `TicTacToeChallengeResults` (`Player Name`, `Score`, `Time`, `Boards`, `Won`, `Draw`, `Lost`, `Date`, `Gametype`)"
-                               "VALUES (:playerName, :score, :inGameTimeSec, :boardsQty, :boardsWin, :boardsDraw, :boardsLost, :cDate, :Gametype)"))
-                {
-                    queryLocal.bindValue(":playerName", rec.value(0));
-                    queryLocal.bindValue(":score", rec.value(1));
-                    queryLocal.bindValue(":inGameTimeSec", rec.value(2));
-                    queryLocal.bindValue(":boardsQty", rec.value(3));
-                    queryLocal.bindValue(":boardsWin", rec.value(4));
-                    queryLocal.bindValue(":boardsDraw",rec.value(5));
-                    queryLocal.bindValue(":boardsLost",rec.value(6));
-                    queryLocal.bindValue(":cDate", rec.value(7));
-                    queryLocal.bindValue(":Gametype", rec.value(8));
-                }
-                queryLocal.exec();
-      //          count++;
-      }
-   dbServer.close();
-}
-//----------------------------------------------------------------------------------------------------------------------------
 bool MainWindow::addRecordtoDB(QSqlDatabase &db)
 {
     QDate cDate=QDate::currentDate();
     //QString cDateStr=cDate.toString("yyyy-MM-dd");
     int inGameTimeSec=inGameTime/1000;
 
-    if(db.open())
-    {
-       QSqlQuery query(db);
-       if (query.prepare("INSERT INTO `TicTacToeChallengeResults` (`Player Name`, `Score`, `Time`, `Boards`, `Won`, `Draw`, `Lost`, `Date`, `Gametype`)"
-                         "VALUES (:playerName, :score, :inGameTimeSec, :boardsQty, :boardsWin, :boardsDraw, :boardsLost, :cDate, :Gametype)"))
-    {
-       query.bindValue(":playerName", playerName);
-       query.bindValue(":score", gameScore);
-       query.bindValue(":inGameTimeSec", inGameTimeSec);
-       query.bindValue(":boardsQty", boardsQty);
-       query.bindValue(":boardsWin", boardsWin);
-       query.bindValue(":boardsDraw",boardsDraw);
-       query.bindValue(":boardsLost",boardsLost);
-       query.bindValue(":cDate", cDate);
-       query.bindValue(":Gametype", gameType);
+    db.open();
 
-       if(query.exec())
-       {
-           //QMessageBox::information(this, "Saving results", "Your result is saved successfully");
-       } else qDebug() << "Problem with exec. " << query.lastError().text();
+    if (!db.isOpen()) return false;
 
-    } else qDebug() << "Problem with prepare. " << query.lastError().text();
+    QSqlQuery query(db);
 
-    } else
-        {
-        qDebug() << "Cant open DB " << db.lastError().text();
-        return false;
-        }
+    query.prepare("INSERT INTO `TicTacToeChallengeResults` (`Player Name`, `Score`, `Time`, `Boards`, `Won`, `Draw`, `Lost`, `Date`, `Gametype`)"
+                  "VALUES (:playerName, :score, :inGameTimeSec, :boardsQty, :boardsWin, :boardsDraw, :boardsLost, :cDate, :Gametype)");
+
+    query.bindValue(":playerName", playerName);
+    query.bindValue(":score", gameScore);
+    query.bindValue(":inGameTimeSec", inGameTimeSec);
+    query.bindValue(":boardsQty", boardsQty);
+    query.bindValue(":boardsWin", boardsWin);
+    query.bindValue(":boardsDraw",boardsDraw);
+    query.bindValue(":boardsLost",boardsLost);
+    query.bindValue(":cDate", cDate);
+    query.bindValue(":Gametype", gameType);
+
+    query.exec();
+
+    db.close();
     return true;
 }
-
 //----------------------------------------------------------------------------------------------------------------------------
 void MainWindow::addRecord(QTableWidget &table,int gameType)
 {
-    //if (gameScore<0) return;
-
     enterPlayerNameDialog();
 
-    /*// get the current date
-    QDate cDate=QDate::currentDate();
-    QString cDateStr=cDate.toString("yyyy-MM-dd");*/
     int inGameTimeSec=inGameTime/1000;
+
     // adding to result table
     table.insertRow(table.rowCount());
     table.setItem(table.rowCount()-1,0,new QTableWidgetItem(playerName));                       // player's name
@@ -359,11 +299,8 @@ void MainWindow::addRecord(QTableWidget &table,int gameType)
     }
     sortTableRows(table, 1);
 
-    // add to DataBases:
-    if (!addRecordtoDB(dbLocal)) qDebug() << "Cant add record to the local DB." << dbLocal.lastError().text();
-    if (!addRecordtoDB(dbServer)) qDebug() << "Cant add record to the server DB." << dbLocal.lastError().text();
-
-    QMessageBox::information(this, "Saving results", "Your result is saved successfully");
+    if (addRecordtoDB(dbServer)) QMessageBox::information(this, "Saving results", "Your result is saved successfully");
+                            else QMessageBox::information(this, "Can't save results to server. ", dbServer.lastError().text());
 }
 //----------------------------------------------------------------------------------------------------------------------------
 
@@ -374,9 +311,6 @@ void MainWindow::assignDataBases()
     dbServer.setDatabaseName("jetpromc_RecordsDB");
     dbServer.setUserName("jetpromc_admin");
     dbServer.setPassword("Admn_2023");
-
-    dbLocal = QSqlDatabase::addDatabase("QSQLITE", "local");
-    dbLocal.setDatabaseName("./TTTresults.db");
 }
 //----------------------------------------------------------------------------------------------------------------------------
 void MainWindow::loadResultsFromDB(QTableWidget &table, int gameType)
@@ -386,7 +320,9 @@ void MainWindow::loadResultsFromDB(QTableWidget &table, int gameType)
 
     for (int col=1; col<table.columnCount();col++)      // setting column widthes
         table.setColumnWidth(col, columnsWidth[col]);
-    QSqlQuery query(dbLocal);
+    //QSqlQuery query(dbLocal);
+
+    QSqlQuery query(dbServer);
 
     if (gameType==CHALENGE_GAME) query.exec("SELECT * FROM `TicTacToeChallengeResults` WHERE `Gametype`= 1;");
     if (gameType==POW2_GAME) query.exec("SELECT * FROM `TicTacToeChallengeResults` WHERE `Gametype`= 2;");
@@ -635,5 +571,16 @@ int MainWindow::enterBoardsNum(int gameType)
     enterBoardsNumDialog->exec();
 
     return spBox->value();
+}
+//-----------------------------------------------------------------------------------------------------
+void MainWindow::on_pbRules_clicked()
+{
+    QFile inputFile("Game rules.txt");
+    inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream in (&inputFile);
+    QString msg=in.readAll();
+    in.flush();
+    inputFile.close();
+    QMessageBox::information(this, "Game rules", msg);
 }
 //-----------------------------------------------------------------------------------------------------

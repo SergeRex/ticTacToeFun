@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
     MainWindow mWindow;
 
     mWindow.setWindowTitle("TicTacToe Fun :)");
+
     mWindow.show();
 
     return a.exec();

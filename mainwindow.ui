@@ -19,6 +19,12 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
+  <property name="iconSize">
+   <size>
+    <width>256</width>
+    <height>256</height>
+   </size>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
@@ -273,7 +279,7 @@
       <x>10</x>
       <y>390</y>
       <width>141</width>
-      <height>41</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="cursor">
@@ -818,6 +824,19 @@
      <string>unknown player</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pbRules">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>540</y>
+      <width>141</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Game rules</string>
+    </property>
+   </widget>
    <zorder>lblImage</zorder>
    <zorder>groupBox</zorder>
    <zorder>groupBox_2</zorder>
@@ -828,6 +847,7 @@
    <zorder>btnChangeName</zorder>
    <zorder>btnCrazyMode</zorder>
    <zorder>lbPlayerName</zorder>
+   <zorder>pbRules</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

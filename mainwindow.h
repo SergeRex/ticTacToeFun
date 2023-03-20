@@ -54,6 +54,11 @@ public:
    static int inGameTime; //play time of the current game
    static int gameType;  // FUN_GAME, CHALENGE_GAME, POW2_GAME
 
+private slots:
+
+
+   void on_pbRules_clicked();
+
 private:
 
     Ui::MainWindow *ui;
@@ -63,18 +68,14 @@ private:
 
     void timerEvent(QTimerEvent *e); // check game status - main cycle
 
-    // working with records
     QSqlDatabase dbServer; // server SQL base
-    QSqlDatabase dbLocal;  // local SQLLite database
-
-    bool addRecordtoDB(QSqlDatabase &db);
 
     void assignDataBases();
-    void copyResultsToLocalDB();
+    bool addRecordtoDB(QSqlDatabase &db);
+
     void loadResultsFromDB(QTableWidget &table, int gameType);
     void sortTableRows(QTableWidget &table, int colNum);
     void addRecord(QTableWidget &table,int gameType);
-
 
     void startGame (int gameType);
 
@@ -82,8 +83,6 @@ private:
     void startGameTimer();
     void breakGame();       // break button action - deleting all current boards and results
     void pauseGame();       // pause button action
-
-
 
     void activeElementsSwitcher(int mode);
     void enterPlayerNameDialog();

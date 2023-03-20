@@ -62,6 +62,7 @@ public:
     QPushButton *btnChangeName;
     QPushButton *btnCrazyMode;
     QLabel *lbPlayerName;
+    QPushButton *pbRules;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -72,6 +73,7 @@ public:
         MainWindow->resize(1020, 627);
         MainWindow->setCursor(QCursor(Qt::ArrowCursor));
         MainWindow->setStyleSheet(QString::fromUtf8(""));
+        MainWindow->setIconSize(QSize(256, 256));
         btnLoadImage = new QAction(MainWindow);
         btnLoadImage->setObjectName(QString::fromUtf8("btnLoadImage"));
         centralwidget = new QWidget(MainWindow);
@@ -150,7 +152,7 @@ public:
         label_6->setFont(font4);
         btnPause = new QPushButton(centralwidget);
         btnPause->setObjectName(QString::fromUtf8("btnPause"));
-        btnPause->setGeometry(QRect(10, 390, 141, 41));
+        btnPause->setGeometry(QRect(10, 390, 141, 51));
         btnPause->setCursor(QCursor(Qt::PointingHandCursor));
         lblImage = new QLabel(centralwidget);
         lblImage->setObjectName(QString::fromUtf8("lblImage"));
@@ -321,6 +323,9 @@ public:
         lbPlayerName->setObjectName(QString::fromUtf8("lbPlayerName"));
         lbPlayerName->setGeometry(QRect(10, 130, 101, 30));
         lbPlayerName->setFont(font);
+        pbRules = new QPushButton(centralwidget);
+        pbRules->setObjectName(QString::fromUtf8("pbRules"));
+        pbRules->setGeometry(QRect(10, 540, 141, 31));
         MainWindow->setCentralWidget(centralwidget);
         lblImage->raise();
         groupBox->raise();
@@ -332,6 +337,7 @@ public:
         btnChangeName->raise();
         btnCrazyMode->raise();
         lbPlayerName->raise();
+        pbRules->raise();
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
         menubar->setGeometry(QRect(0, 0, 1020, 21));
@@ -404,6 +410,7 @@ public:
         btnChangeName->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
         btnCrazyMode->setText(QString());
         lbPlayerName->setText(QCoreApplication::translate("MainWindow", "unknown player", nullptr));
+        pbRules->setText(QCoreApplication::translate("MainWindow", "Game rules", nullptr));
     } // retranslateUi
 
 };

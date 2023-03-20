@@ -33,7 +33,7 @@ IDC           = idc
 IDL           = midl
 ZIP           = zip -r -9
 DEF_FILE      = 
-RES_FILE      = 
+RES_FILE      = ticTacToeFun_resource_res.o
 SED           = $(QMAKE) -install sed
 MOVE          = move
 SUBTARGETS    =  \
@@ -253,8 +253,7 @@ Makefile: ticTacToeFun.pro ../../../Qt/5.15.2/mingw81_64/mkspecs/win32-g++/qmake
 		../../../Qt/5.15.2/mingw81_64/lib/Qt5Sql.prl \
 		../../../Qt/5.15.2/mingw81_64/lib/Qt5Core.prl \
 		../../../Qt/5.15.2/mingw81_64/lib/qtmain.prl \
-		../../../Qt/5.15.2/mingw81_64/mkspecs/features/build_pass.prf \
-		resourse.qrc
+		../../../Qt/5.15.2/mingw81_64/mkspecs/features/build_pass.prf
 	$(QMAKE) -o Makefile ticTacToeFun.pro -spec win32-g++ "CONFIG+=qtquickcompiler"
 ../../../Qt/5.15.2/mingw81_64/mkspecs/features/spec_pre.prf:
 ../../../Qt/5.15.2/mingw81_64/mkspecs/qdevice.pri:
@@ -440,7 +439,6 @@ ticTacToeFun.pro:
 ../../../Qt/5.15.2/mingw81_64/lib/Qt5Core.prl:
 ../../../Qt/5.15.2/mingw81_64/lib/qtmain.prl:
 ../../../Qt/5.15.2/mingw81_64/mkspecs/features/build_pass.prf:
-resourse.qrc:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ticTacToeFun.pro -spec win32-g++ "CONFIG+=qtquickcompiler"
 
