@@ -1,0 +1,9 @@
+TIC-TAC-TOE FUN, v.3.0.1.
+S.Ryabko. 2023
+
+This game app is a training project to refresh my practical skills in programming. It is written on C++ using the Qt framework. And it incorporates object-oriented programming principles and includes interaction with remote SQL database for the saving of game records.
+
+Thanks to the object-oriented approach the engine allows to create variable quantity of 'independent from each other' local games with different game board sizes and locations on the global board which is demonstrated in 'crazy' game and also to create a second level game and even third level game which are demonstrated in 'ultimate' and 'extreme' games.
+
+Currenly the app works on Windows PCs only.
+

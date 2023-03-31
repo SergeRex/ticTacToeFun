@@ -1,3 +1,6 @@
+/// v.3.2.0 - if game starded yesterday bug, improved playing algorithm, minmax is developing
+///
+
 #include "mainwindow.h"
 #include "qspinbox.h"
 #include "ui_mainwindow.h"
@@ -86,20 +89,20 @@ void MainWindow::handleGameOver(int matchStatus)
       QMessageBox::information(this, "GAME OVER", playerName+", unfortunately you lost this match :(");
     else
     {
-        int timeScoreComponent=inGameTime/5000;
+        //inGameTime=inGameTime*8; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+        int timeScoreComponent=inGameTime/5000;
         if (timeScoreComponent==0) timeScoreComponent=1; // avoid div 0
 
         if((gameType==FUN_GAME)||(gameType==CHALENGE_GAME)||(gameType==CRAZY_GAME))
         {
 
             gameScore=(boardsWin*2000+boardsDraw*1000-boardsLost*1000)/(timeScoreComponent);
-            QMessageBox::information(this, "GAME OVER", playerName+", your completed the TocTacToe match."
+            QMessageBox::information(this, "GAME OVER", playerName+", your completed the TicTacToe match."
                                      +msg1+QString::number(gameScore)+msg2+QString::number(inGameTime/1000)+msg3);
 
             if ((gameScore>0)&&(boardsQty>15)) addRecord(*ui->tableResult,CHALENGE_GAME);
         }
-
         if(gameType==POW2_GAME)
         {
             gameScore=(9*1000)/(timeScoreComponent);
@@ -128,6 +131,8 @@ void MainWindow::timerEvent(QTimerEvent *e)
 
     int ms = qtime.msecsSinceStartOfDay();
     inGameTime=ms-startTime;
+    if (inGameTime<=0) inGameTime=86400000-startTime+ms; //if game started yesterday and finished today
+
     ui->lbTimer->setText(QString::number(inGameTime/1000));
 
     showResults();
@@ -251,6 +256,7 @@ bool MainWindow::addRecordtoDB(QSqlDatabase &db)
 {
     QDate cDate=QDate::currentDate();
     //QString cDateStr=cDate.toString("yyyy-MM-dd");
+    if (gameType==CRAZY_GAME) gameType=CHALENGE_GAME;
     int inGameTimeSec=inGameTime/1000;
 
     db.open();
@@ -286,6 +292,7 @@ void MainWindow::addRecord(QTableWidget &table,int gameType)
 
     // adding to result table
     table.insertRow(table.rowCount());
+
     table.setItem(table.rowCount()-1,0,new QTableWidgetItem(playerName));                       // player's name
     table.setItem(table.rowCount()-1,1,new QTableWidgetItem(QString::number(gameScore)));       // score
     table.setItem(table.rowCount()-1,2,new QTableWidgetItem(QString::number(inGameTimeSec)));   // game time
@@ -581,6 +588,18 @@ void MainWindow::on_pbRules_clicked()
     QString msg=in.readAll();
     in.flush();
     inputFile.close();
-    QMessageBox::information(this, "Game rules", msg);
+    QMessageBox::information(this, "The game rules", msg);
 }
 //-----------------------------------------------------------------------------------------------------
+
+void MainWindow::on_pbAbout_clicked()
+{
+    QFile inputFile("About project.txt");
+    inputFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream in (&inputFile);
+    QString msg=in.readAll();
+    in.flush();
+    inputFile.close();
+    QMessageBox::information(this, "About the project", msg);
+}
+

@@ -57,10 +57,15 @@ class TicTacToe : public QWidget
 
     private:
 
+
+        int minMax(int cell, int type);
+
+
         bool virtualBoard=false;
         QLabel *lblcellCompleted;
 
         int gameBoard[9]={0,0,0,0,0,0,0,0,0};
+        int checkingGameBoard[9];
 
         int linesScore[8];
 

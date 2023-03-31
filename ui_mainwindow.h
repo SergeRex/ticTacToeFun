@@ -63,6 +63,7 @@ public:
     QPushButton *btnCrazyMode;
     QLabel *lbPlayerName;
     QPushButton *pbRules;
+    QPushButton *pbAbout;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -152,7 +153,7 @@ public:
         label_6->setFont(font4);
         btnPause = new QPushButton(centralwidget);
         btnPause->setObjectName(QString::fromUtf8("btnPause"));
-        btnPause->setGeometry(QRect(10, 390, 141, 51));
+        btnPause->setGeometry(QRect(10, 390, 141, 61));
         btnPause->setCursor(QCursor(Qt::PointingHandCursor));
         lblImage = new QLabel(centralwidget);
         lblImage->setObjectName(QString::fromUtf8("lblImage"));
@@ -166,7 +167,7 @@ public:
         allGamesGroupBox->setStyleSheet(QString::fromUtf8("background-color: rgb(231, 237, 255);"));
         groupBox_3 = new QGroupBox(allGamesGroupBox);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        groupBox_3->setGeometry(QRect(10, 10, 381, 551));
+        groupBox_3->setGeometry(QRect(10, 10, 371, 551));
         groupBox_3->setStyleSheet(QString::fromUtf8("background-color: rgb(224, 255, 210);"));
         groupBox_3->setFlat(false);
         tableResult = new QTableWidget(groupBox_3);
@@ -187,7 +188,7 @@ public:
         QTableWidgetItem *__qtablewidgetitem6 = new QTableWidgetItem();
         tableResult->setHorizontalHeaderItem(6, __qtablewidgetitem6);
         tableResult->setObjectName(QString::fromUtf8("tableResult"));
-        tableResult->setGeometry(QRect(10, 30, 361, 401));
+        tableResult->setGeometry(QRect(10, 30, 351, 401));
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -215,7 +216,7 @@ public:
         tableResult->verticalHeader()->setHighlightSections(true);
         btnStartChalenge = new QPushButton(groupBox_3);
         btnStartChalenge->setObjectName(QString::fromUtf8("btnStartChalenge"));
-        btnStartChalenge->setGeometry(QRect(160, 450, 211, 71));
+        btnStartChalenge->setGeometry(QRect(160, 450, 201, 71));
         btnStartChalenge->setStyleSheet(QString::fromUtf8("background-color: rgb(240, 240, 240);"));
         btnStartFun = new QPushButton(groupBox_3);
         btnStartFun->setObjectName(QString::fromUtf8("btnStartFun"));
@@ -223,7 +224,7 @@ public:
         btnStartFun->setStyleSheet(QString::fromUtf8("background-color: rgb(240, 240, 240);"));
         groupBox_4 = new QGroupBox(allGamesGroupBox);
         groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
-        groupBox_4->setGeometry(QRect(400, 10, 221, 551));
+        groupBox_4->setGeometry(QRect(400, 10, 211, 551));
         groupBox_4->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 254, 240);"));
         tableResultPow2 = new QTableWidget(groupBox_4);
         if (tableResultPow2->columnCount() < 3)
@@ -235,7 +236,7 @@ public:
         QTableWidgetItem *__qtablewidgetitem9 = new QTableWidgetItem();
         tableResultPow2->setHorizontalHeaderItem(2, __qtablewidgetitem9);
         tableResultPow2->setObjectName(QString::fromUtf8("tableResultPow2"));
-        tableResultPow2->setGeometry(QRect(10, 30, 201, 401));
+        tableResultPow2->setGeometry(QRect(10, 30, 191, 401));
         sizePolicy.setHeightForWidth(tableResultPow2->sizePolicy().hasHeightForWidth());
         tableResultPow2->setSizePolicy(sizePolicy);
         tableResultPow2->setTabletTracking(false);
@@ -259,11 +260,11 @@ public:
         tableResultPow2->verticalHeader()->setHighlightSections(true);
         btnStartPow2 = new QPushButton(groupBox_4);
         btnStartPow2->setObjectName(QString::fromUtf8("btnStartPow2"));
-        btnStartPow2->setGeometry(QRect(10, 450, 201, 71));
+        btnStartPow2->setGeometry(QRect(10, 450, 191, 71));
         btnStartPow2->setStyleSheet(QString::fromUtf8("background-color: rgb(240, 240, 240);"));
         groupBox_6 = new QGroupBox(allGamesGroupBox);
         groupBox_6->setObjectName(QString::fromUtf8("groupBox_6"));
-        groupBox_6->setGeometry(QRect(630, 10, 221, 551));
+        groupBox_6->setGeometry(QRect(630, 10, 211, 551));
         groupBox_6->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 213, 219);"));
         tableResultPow3 = new QTableWidget(groupBox_6);
         if (tableResultPow3->columnCount() < 3)
@@ -275,7 +276,7 @@ public:
         QTableWidgetItem *__qtablewidgetitem12 = new QTableWidgetItem();
         tableResultPow3->setHorizontalHeaderItem(2, __qtablewidgetitem12);
         tableResultPow3->setObjectName(QString::fromUtf8("tableResultPow3"));
-        tableResultPow3->setGeometry(QRect(10, 30, 201, 401));
+        tableResultPow3->setGeometry(QRect(10, 30, 191, 401));
         sizePolicy.setHeightForWidth(tableResultPow3->sizePolicy().hasHeightForWidth());
         tableResultPow3->setSizePolicy(sizePolicy);
         tableResultPow3->setTabletTracking(false);
@@ -299,7 +300,7 @@ public:
         tableResultPow3->verticalHeader()->setHighlightSections(true);
         btnStartPow3 = new QPushButton(groupBox_6);
         btnStartPow3->setObjectName(QString::fromUtf8("btnStartPow3"));
-        btnStartPow3->setGeometry(QRect(10, 450, 201, 71));
+        btnStartPow3->setGeometry(QRect(10, 450, 191, 71));
         btnStartPow3->setStyleSheet(QString::fromUtf8("background-color: rgb(240, 240, 240);"));
         groupBox_7 = new QGroupBox(centralwidget);
         groupBox_7->setObjectName(QString::fromUtf8("groupBox_7"));
@@ -325,7 +326,10 @@ public:
         lbPlayerName->setFont(font);
         pbRules = new QPushButton(centralwidget);
         pbRules->setObjectName(QString::fromUtf8("pbRules"));
-        pbRules->setGeometry(QRect(10, 540, 141, 31));
+        pbRules->setGeometry(QRect(60, 540, 91, 31));
+        pbAbout = new QPushButton(centralwidget);
+        pbAbout->setObjectName(QString::fromUtf8("pbAbout"));
+        pbAbout->setGeometry(QRect(10, 540, 41, 31));
         MainWindow->setCentralWidget(centralwidget);
         lblImage->raise();
         groupBox->raise();
@@ -338,6 +342,7 @@ public:
         btnCrazyMode->raise();
         lbPlayerName->raise();
         pbRules->raise();
+        pbAbout->raise();
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
         menubar->setGeometry(QRect(0, 0, 1020, 21));
@@ -411,6 +416,7 @@ public:
         btnCrazyMode->setText(QString());
         lbPlayerName->setText(QCoreApplication::translate("MainWindow", "unknown player", nullptr));
         pbRules->setText(QCoreApplication::translate("MainWindow", "Game rules", nullptr));
+        pbAbout->setText(QCoreApplication::translate("MainWindow", "About", nullptr));
     } // retranslateUi
 
 };

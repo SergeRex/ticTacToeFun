@@ -59,6 +59,8 @@ private slots:
 
    void on_pbRules_clicked();
 
+   void on_pbAbout_clicked();
+
 private:
 
     Ui::MainWindow *ui;
