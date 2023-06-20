@@ -20,7 +20,6 @@ Game::Game(QMainWindow *parent, int boardsQty, int gameFieldSize, int gameFieldP
        newgame = new TicTacToe (parent,boardSize);
        gameList.push_back(newgame);
 
-
        gameList[i]->setGeometry(gameFieldPosX+ORIGIN_X+(i%columnsNum)*boardSize,
                                 gameFieldPosY+ORIGIN_Y+(i/columnsNum)*boardSize,0,0);
        gameList[i]->show();

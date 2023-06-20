@@ -14,17 +14,15 @@ public:
 
     TicTacToe *pow2Game;
     QVector <TicTacToe*> gameList;   // dynamic boards list
+    QLabel *lblcellCompleted;
 
     int matchStatus;
+    int boardsQty;
 
     void timerEvent(QTimerEvent *e);
     void hideBoard();
     void showBoard();
-    int boardsQty;
-
     void checkGameEnd();
-
-    QLabel *lblcellCompleted;
 };
 
 #endif //GAME_H

@@ -97,14 +97,6 @@ int TicTacToe::boardAnalysis ()
        for (int k=0; k<3;k++)linesScore[line]+=gameBoard[linesMap[line][k]];
     }
 
-    //   col col col     diag
-    //   -0- -1- -2- -7-
-    //   [0] [1] [2] -3- row
-    //   [3] [4] [5] -4- row
-    //   [6] [7] [8] -5- row
-    //               -6-
-    //                   diag
-
     int maxLineScore=0;
     int minLineScore=0;
 
@@ -236,53 +228,6 @@ int TicTacToe::cellInit(int cell, int type)
     return boardAnalysis();  // check game status after move
 }
 //------------------------------------------------------------------------------------------------------------
-
-int TicTacToe::minMax(int cell, int type)
-{
-    //int innergameBoard[9];
-    QVector <int> inneremptyCells;
-    inneremptyCells.clear();
-
-    //QMessageBox::information(this, "Check cell", QString::number(cell));
-
-    checkingGameBoard[cell]=type;
-
-    //QMessageBox::information(this, "Check cell", QString::number(checkingGameBoard[0])+QString::number(checkingGameBoard[1])+QString::number(checkingGameBoard[2])+"\n"+
-    //                                             QString::number(checkingGameBoard[3])+QString::number(checkingGameBoard[4])+QString::number(checkingGameBoard[5])+"\n"+
-    //                                           QString::number(checkingGameBoard[6])+QString::number(checkingGameBoard[7])+QString::number(checkingGameBoard[8])+"\n");
-
-
-    for (int line=0;line<LINES_NUM;line++)
-    {
-        int linescore=0;
-        for (int i=0; i<3;i++) linescore+=checkingGameBoard[linesMap[line][i]];
-        if (linescore==-3) return -10;
-        if (linescore==3) return 10;
-    }
-
-//----
-
-    for(int cellnum=0; cellnum<BOARD_CELLS_NUM; cellnum++)
-    {
-        if (checkingGameBoard[cellnum]==0)
-            inneremptyCells.push_back(cellnum);
-    }
-
-    //QMessageBox::information(this, "Emptycellsleft", QString::number(inneremptyCells.size()));
-
-    //QMessageBox::information(this, "Check next move", QString::number(cell));
-    if (inneremptyCells.isEmpty()) return 0;
-
-    int othertype;
-    if (type==-1) othertype=1;
-            else othertype=-1;
-
-    for (int emptycell=0;emptycell<=inneremptyCells.size(); emptycell++)
-        return minMax(inneremptyCells[emptycell], othertype);
-}
-
-
-//----------------------------------------------------------------------------------------------------
 int TicTacToe::compTurn()
 {
 
@@ -318,48 +263,8 @@ int TicTacToe::compTurn()
         if(emptyCells.contains(8)) return 8;
     }
 
-// lowest prioryty - -put "O" in the first free cell
+    // lowest prioryty - -put "O" in the first free cell
     return emptyCells[0];
-
-    /*
-     // MINMAX strategy under developement
-
-          QVector <int> fieldScores(BOARD_CELLS_NUM);
-
-
-    for (int cell=0; cell<BOARD_CELLS_NUM; cell++)  // populate scores array for each move
-    {
-
-
-        if (gameBoard[cell]!=0) fieldScores[cell]=-20;
-           else
-        {
-
-             for (int cell=0; cell<BOARD_CELLS_NUM; cell++) checkingGameBoard[cell]=gameBoard[cell]; // clear field cond
-             fieldScores[cell]=minMax(cell,1);
-        }
-
-        QMessageBox::information(this, "Main choice", QString::number(checkingGameBoard[0])+QString::number(checkingGameBoard[1])+QString::number(checkingGameBoard[2])+"\n"+
-                                                      QString::number(checkingGameBoard[3])+QString::number(checkingGameBoard[4])+QString::number(checkingGameBoard[5])+"\n"+
-                                                      QString::number(checkingGameBoard[6])+QString::number(checkingGameBoard[7])+QString::number(checkingGameBoard[8])+"\n");
-
-
-    }
-
-   // QMessageBox::information(this, "Main choice", QString::number(fieldScores[0])+QString::number(fieldScores[1])+QString::number(fieldScores[2])+"\n"+
-   //                                               QString::number(fieldScores[3])+QString::number(fieldScores[4])+QString::number(fieldScores[5])+"\n"+
-   //                                               QString::number(fieldScores[6])+QString::number(fieldScores[7])+QString::number(fieldScores[8])+"\n");
-    int move;
-    move=fieldScores.indexOf(10);
-    QMessageBox::information(this, "Move",  QString::number(move));
-    if(move!=-1) return move;
-    move=fieldScores.indexOf(0);
-    if(move!=-1) return move;
-    QMessageBox::information(this, "Move",  QString::number(move));
-    //return emptyCells[0];
-*/
-
-
 }
 //----------------------------------------------------------------------------------------------------
 int TicTacToe::getEmptyCellsQty() const

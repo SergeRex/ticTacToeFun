@@ -7,7 +7,6 @@
 #include <QWidget>
 #include <QVector>
 
-
 const int BOARD_CELLS_NUM = 9;
 const int LINES_NUM = 8;
 
@@ -21,7 +20,6 @@ enum gameCond
     GAME_FINISHED,
     COMPLETED,
     LOST
-    // for pow games
 };
 
 
@@ -43,41 +41,30 @@ class TicTacToe : public QWidget
         ~TicTacToe();
 
         int gameStatus=NOT_DEFINED;
-
         QPushButton *btnCells[9];
 
         int cellInit(int cell, int type);
         int boardAnalysis();
         int compTurn();
         void checkGameEnd();
-
         int getEmptyCellsQty() const;
-
-
 
     private:
 
 
-        int minMax(int cell, int type);
-
-
         bool virtualBoard=false;
         QLabel *lblcellCompleted;
+        QVector <int> emptyCells;
 
         int gameBoard[9]={0,0,0,0,0,0,0,0,0};
         int checkingGameBoard[9];
-
         int linesScore[8];
-
         int winLineNum=-1;
-        QVector <int> emptyCells;
 
         static const int linesMap[LINES_NUM][3];
-
         int getEmptyCellInLine(int line) const;
 
     signals:
-
         void handleCellClick (int cell);
 
 };

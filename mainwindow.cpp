@@ -1,6 +1,4 @@
-/// v.3.2.0 - if game starded yesterday bug, improved playing algorithm, minmax is developing
-///
-
+/// v.3.5.0
 #include "mainwindow.h"
 #include "qspinbox.h"
 #include "ui_mainwindow.h"
@@ -89,8 +87,6 @@ void MainWindow::handleGameOver(int matchStatus)
       QMessageBox::information(this, "GAME OVER", playerName+", unfortunately you lost this match :(");
     else
     {
-        //inGameTime=inGameTime*8; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         int timeScoreComponent=inGameTime/5000;
         if (timeScoreComponent==0) timeScoreComponent=1; // avoid div 0
 
@@ -255,7 +251,6 @@ void MainWindow::breakGame()
 bool MainWindow::addRecordtoDB(QSqlDatabase &db)
 {
     QDate cDate=QDate::currentDate();
-    //QString cDateStr=cDate.toString("yyyy-MM-dd");
     if (gameType==CRAZY_GAME) gameType=CHALENGE_GAME;
     int inGameTimeSec=inGameTime/1000;
 
@@ -314,10 +309,10 @@ void MainWindow::addRecord(QTableWidget &table,int gameType)
 void MainWindow::assignDataBases()
 {
     dbServer = QSqlDatabase::addDatabase("QMYSQL", "server");
-    dbServer.setHostName("91.239.234.10");
-    dbServer.setDatabaseName("jetpromc_RecordsDB");
-    dbServer.setUserName("jetpromc_admin");
-    dbServer.setPassword("Admn_2023");
+    dbServer.setHostName("");
+    dbServer.setDatabaseName("");
+    dbServer.setUserName("");
+    dbServer.setPassword("");
 }
 //----------------------------------------------------------------------------------------------------------------------------
 void MainWindow::loadResultsFromDB(QTableWidget &table, int gameType)
@@ -602,4 +597,3 @@ void MainWindow::on_pbAbout_clicked()
     inputFile.close();
     QMessageBox::information(this, "About the project", msg);
 }
-

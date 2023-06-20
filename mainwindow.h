@@ -55,10 +55,7 @@ public:
    static int gameType;  // FUN_GAME, CHALENGE_GAME, POW2_GAME
 
 private slots:
-
-
    void on_pbRules_clicked();
-
    void on_pbAbout_clicked();
 
 private:
@@ -67,21 +64,21 @@ private:
 
     QVector <Game*> gamesList;
     TicTacToe *pow3Game;
-
-    void timerEvent(QTimerEvent *e); // check game status - main cycle
-
     QSqlDatabase dbServer; // server SQL base
 
+    int startTime;          //time of the start of the current game
+    int enterBoardsNum(int gameType);
+
+    void timerEvent(QTimerEvent *e); // check game status - main cycle
     void assignDataBases();
     bool addRecordtoDB(QSqlDatabase &db);
-
     void loadResultsFromDB(QTableWidget &table, int gameType);
     void sortTableRows(QTableWidget &table, int colNum);
     void addRecord(QTableWidget &table,int gameType);
 
     void startGame (int gameType);
 
-    int startTime;          //time of the start of the current game
+
     void startGameTimer();
     void breakGame();       // break button action - deleting all current boards and results
     void pauseGame();       // pause button action
@@ -91,7 +88,5 @@ private:
     void loadIcons();
     void showResults();
     void handleGameOver(int matchStatus);
-    int enterBoardsNum(int gameType);
-
 };
 #endif // MAINWINDOW_H
